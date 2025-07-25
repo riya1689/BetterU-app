@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import AuthGuard from '../../components/specific/AuthGuard';
 
 // MOCK DATA: Sample chat messages
 const INITIAL_MESSAGES = [
@@ -41,6 +42,7 @@ const AIChatScreen = () => {
   };
 
   return (
+    <AuthGuard>
     <KeyboardAvoidingView 
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -74,6 +76,7 @@ const AIChatScreen = () => {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </AuthGuard>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import AuthGuard from '../../components/specific/AuthGuard';
 
 // MOCK DATA: This will come from your backend later
 const MOCK_QUIZZES = [
@@ -31,6 +32,7 @@ const AssessmentScreen = () => {
   };
 
   return (
+    <AuthGuard>
     <View style={styles.container}>
       <Text style={styles.header}>Self-Assessment</Text>
       <Text style={styles.subHeader}>Choose a quiz to understand your mental well-being.</Text>
@@ -46,6 +48,7 @@ const AssessmentScreen = () => {
         )}
       />
     </View>
+    </AuthGuard>
   );
 };
 

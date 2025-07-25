@@ -1,8 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, StatusBar } from 'react-native';
-import PsychologistCard from '../../components/specific/PsychologistCard'; // Import the new component
+import PsychologistCard from '../../components/specific/PsychologistCard';
 
-// MOCK DATA: In the future, this will come from your backend API
+// DEBUG: The error "Unable to resolve module" means the app cannot find the file at this path.
+// Please double-check that you have a file named exactly "AuthGuard.js"
+// inside a folder named "specific", which is inside a folder named "components".
+// The path should be: frontend/components/specific/AuthGuard.js
+import AuthGuard from '../../components/specific/AuthGuard';
+
+// MOCK DATA: This will come from your backend API
 const MOCK_PSYCHOLOGISTS = [
   { 
     id: '1', 
@@ -29,27 +35,29 @@ const MOCK_PSYCHOLOGISTS = [
 
 const CounselingScreen = () => {
   const handlePress = (psychologist) => {
-    // We'll add booking logic here in a future step
     console.log('Selected Psychologist:', psychologist.name);
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <Text style={styles.header}>Find Your Counselor</Text>
-      
-      <FlatList
-        data={MOCK_PSYCHOLOGISTS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <PsychologistCard 
-            psychologist={item} 
-            onPress={() => handlePress(item)} 
-          />
-        )}
-        contentContainerStyle={styles.listContent}
-      />
-    </View>
+    // 2. Wrap the entire screen content with AuthGuard
+    <AuthGuard>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <Text style={styles.header}>Find Your Counselor</Text>
+        
+        <FlatList
+          data={MOCK_PSYCHOLOGISTS}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <PsychologistCard 
+              psychologist={item} 
+              onPress={() => handlePress(item)} 
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+        />
+      </View>
+    </AuthGuard>
   );
 };
 

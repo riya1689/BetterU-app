@@ -6,9 +6,9 @@ const AppHeader = () => {
   const navigation = useNavigation();
 
   // This function will handle the login press.
-  // For now, it will navigate to the Profile tab.
   const onLoginPress = () => {
-    navigation.navigate('Profile');
+    // This now navigates to the full-page Login screen
+    navigation.navigate('Login'); 
   };
 
   return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
+import AuthGuard from '../../components/specific/AuthGuard';
 
 // MOCK DATA: This will come from your backend later
 const MOCK_TRACKS = [
@@ -21,6 +22,7 @@ const MeditationScreen = () => {
   };
 
   return (
+    <AuthGuard>
     <View style={styles.container}>
       <Text style={styles.header}>Meditation Library</Text>
       <FlatList
@@ -37,6 +39,7 @@ const MeditationScreen = () => {
         contentContainerStyle={styles.listContent}
       />
     </View>
+    </AuthGuard>
   );
 };
 
