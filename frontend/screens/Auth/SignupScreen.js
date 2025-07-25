@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../store/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
 
 const SignupScreen = ({ navigation }) => {
-  const [firstName, setFirstName] = useState(''); // <-- New state
-  const [lastName, setLastName] = useState('');   // <-- New state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const { signup } = useAuth();
 
   const handleSignup = () => {
@@ -16,7 +19,6 @@ const SignupScreen = ({ navigation }) => {
       alert("Passwords do not match!");
       return;
     }
-    // Now we pass the full name to our mock signup function
     const fullName = `${firstName} ${lastName}`;
     signup(fullName, email, password);
   };
@@ -32,7 +34,6 @@ const SignupScreen = ({ navigation }) => {
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>to get started now!</Text>
 
-          {/* --- NEW NAME INPUTS ROW --- */}
           <View style={styles.nameRow}>
             <TextInput
               style={[styles.input, styles.nameInput]}
@@ -49,8 +50,7 @@ const SignupScreen = ({ navigation }) => {
               onChangeText={setLastName}
             />
           </View>
-          {/* ------------------------- */}
-
+          
           <TextInput
             style={styles.input}
             placeholder="Email Address"
@@ -60,22 +60,50 @@ const SignupScreen = ({ navigation }) => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#6c5b7b"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor="#6c5b7b"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
+          
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Password"
+              placeholderTextColor="#6c5b7b"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!isPasswordVisible}
+            />
+            <TouchableOpacity 
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+              style={styles.eyeIcon}
+            >
+              {/* --- UPDATED ICON NAMES --- */}
+              <Ionicons 
+                name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
+                size={24} 
+                color="#3a3242" 
+              />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Confirm Password"
+              placeholderTextColor="#6c5b7b"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!isConfirmPasswordVisible}
+            />
+            <TouchableOpacity 
+              onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+              style={styles.eyeIcon}
+            >
+              {/* --- UPDATED ICON NAMES --- */}
+              <Ionicons 
+                name={isConfirmPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
+                size={24} 
+                color="#3a3242" 
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
             <Text style={styles.signupButtonText}>Sign Up</Text>
@@ -88,7 +116,7 @@ const SignupScreen = ({ navigation }) => {
           </View>
 
           <TouchableOpacity style={styles.googleButton}>
-              <Text>G</Text>
+              <Ionicons name="logo-google" size={24} color="#3a3242" />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -103,82 +131,23 @@ const SignupScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#3a3242',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 24,
-    color: '#4a4252',
-    marginBottom: 40,
-  },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 10,
-    fontSize: 16,
-    color: '#3a3242',
-    marginBottom: 15,
-  },
-  // --- NEW STYLES FOR NAME INPUTS ---
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  nameInput: {
-    width: '48%', // To fit two inputs side-by-side
-  },
-  // ----------------------------------
-  signupButton: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 18,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  signupButtonText: {
-    color: '#3a3242',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: '#a39da9'
-  },
-  dividerText: {
-      marginHorizontal: 10,
-      color: '#4a4252'
-  },
-  googleButton: {
-      backgroundColor: '#ffffff',
-      padding: 15,
-      borderRadius: 10,
-      alignItems: 'center',
-      marginBottom: 30,
-  },
-  loginText: {
-    textAlign: 'center',
-    color: '#3a3242',
-    fontSize: 16,
-  },
+  container: { flex: 1 },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 30 },
+  title: { fontSize: 40, fontWeight: 'bold', color: '#3a3242', marginBottom: 5 },
+  subtitle: { fontSize: 24, color: '#4a4252', marginBottom: 40 },
+  input: { backgroundColor: 'rgba(255, 255, 255, 0.5)', paddingHorizontal: 20, paddingVertical: 15, borderRadius: 10, fontSize: 16, color: '#3a3242', marginBottom: 15 },
+  nameRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  nameInput: { width: '48%' },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.5)', borderRadius: 10, marginBottom: 15 },
+  passwordInput: { flex: 1, paddingHorizontal: 20, paddingVertical: 15, fontSize: 16, color: '#3a3242' },
+  eyeIcon: { padding: 15 },
+  signupButton: { backgroundColor: '#ffffff', paddingVertical: 18, borderRadius: 10, alignItems: 'center', marginTop: 10, marginBottom: 20 },
+  signupButtonText: { color: '#3a3242', fontSize: 18, fontWeight: 'bold' },
+  dividerContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#a39da9' },
+  dividerText: { marginHorizontal: 10, color: '#4a4252' },
+  googleButton: { backgroundColor: '#ffffff', padding: 15, borderRadius: 10, alignItems: 'center', marginBottom: 30 },
+  loginText: { textAlign: 'center', color: '#3a3242', fontSize: 16 },
 });
 
 export default SignupScreen;
