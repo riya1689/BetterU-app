@@ -1,9 +1,10 @@
-// backend/routes/authRoutes.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { register, login } = require("../controllers/authController");
+const { registerUser } = require('../controllers/authController');
 
-router.post("/register", register);
-router.post("/login", login);
+// @route   POST api/auth/register
+// @desc    Register a new user
+// @access  Public
+router.post('/register', registerUser);
 
 module.exports = router;

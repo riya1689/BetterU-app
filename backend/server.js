@@ -1,23 +1,29 @@
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
-const cors = require("cors"); // <--- 1. ADD THIS LINE
+const cors = require("cors");
+
+// --- 1. IMPORT YOUR NEW ROUTE FILE ---
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- 2. ADD THESE TWO LINES ---
-app.use(cors()); // This allows my Vercel frontend to make requests
+app.use(cors());
 app.use(express.json());
-// ------------------------------
 
 // Connect to MongoDB
 connectDB();
 
-// (Later: add your routes here)
 app.get("/", (req, res) => {
   res.send("✅ Backend is live!");
-})
+});
+
+// --- 2. USE THE AUTH ROUTES ---
+// This tells the app that any URL starting with /api/auth
+// should be handled by the authRoutes file.
+app.use('/api/auth', authRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

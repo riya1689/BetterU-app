@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { useAuth } from '../../store/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import ToastMessage from '../../components/common/ToastMessage';
 
-// This is a reusable component for the list items
+// Reusable component for the menu items
 const ProfileMenuItem = ({ icon, text, onPress }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <Text style={styles.menuItemIcon}>{icon}</Text>
@@ -10,31 +13,65 @@ const ProfileMenuItem = ({ icon, text, onPress }) => (
 );
 
 const ProfileScreen = () => {
-  const handleLogin = () => alert('Login functionality coming soon!');
-  const handleLogout = () => alert('Logout functionality coming soon!');
-  const handleBookmarks = () => alert('Bookmarks functionality coming soon!');
-  const handleAnalytics = () => alert('Analytics functionality coming soon!');
+  const navigation = useNavigation();
+  const { user, logout } = useAuth(); // Get user and logout function from our context
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const handleLockedFeature = () => {
+    // If a logged-out user clicks a locked item, show the toast message.
+    if (!user) {
+      setToastVisible(true);
+    }
+    // If the user is logged in, this would navigate to the feature.
+    // For now, we can just log a message.
+    else {
+        alert('This feature is coming soon!');
+    }
+  };
+
+  const handleLoginPress = () => {
+    navigation.navigate('Login');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.profileHeader}>
         <Image 
+          // We can add the user's real avatar later
           source={{ uri: 'https://placehold.co/150x150/E0E0E0/333?text= ' }} 
           style={styles.avatar} 
         />
-        <Text style={styles.userName}>Riya Das</Text>
+        {/* --- DYNAMIC NAME/MESSAGE --- */}
+        {user ? (
+          <Text style={styles.userName}>{user.name}</Text>
+        ) : (
+          <Text style={styles.userName}>Please log in / Sign Up</Text>
+        )}
         <Text style={styles.userHandle}>Welcome to BetterU</Text>
       </View>
       
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Log In</Text>
-      </TouchableOpacity>
+      {/* --- DYNAMIC LOGIN/LOGOUT BUTTONS --- */}
+      {!user && (
+        <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
+          <Text style={styles.loginButtonText}>Log In</Text>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.menuContainer}>
-        <ProfileMenuItem icon="🔖" text="Bookmarks" onPress={handleBookmarks} />
-        <ProfileMenuItem icon="📊" text="Your Analytics" onPress={handleAnalytics} />
-        <ProfileMenuItem icon="🚪" text="Logout" onPress={handleLogout} />
+        <ProfileMenuItem icon="🔖" text="Bookmarks" onPress={handleLockedFeature} />
+        <ProfileMenuItem icon="📊" text="Your Analytics" onPress={handleLockedFeature} />
+        {/* Only show the Logout button if the user is logged in */}
+        {user && (
+            <ProfileMenuItem icon="🚪" text="Logout" onPress={logout} />
+        )}
       </View>
+
+      {/* --- TEMPORARY TOAST MESSAGE --- */}
+      <ToastMessage 
+        visible={toastVisible} 
+        message="Please log in/Sign Up"
+        onHide={() => setToastVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -58,13 +95,15 @@ const styles = StyleSheet.create({
     borderColor: '#1e3a8a',
   },
   userName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#1e3a8a',
+    textAlign: 'center',
   },
   userHandle: {
     fontSize: 16,
     color: '#475569',
+    marginTop: 4,
   },
   loginButton: {
     backgroundColor: '#1e3a8a',

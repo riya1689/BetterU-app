@@ -1,42 +1,118 @@
-// backend/controllers/authController.js
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const User = require('../models/user'); // Use lowercase 'user' as you requested
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-exports.register = async (req, res) => {
+// @desc    Register a new user
+// @route   POST /api/auth/register
+// @access  Public
+const registerUser = async (req, res) => {
+  const { name, email, password } = req.body;
+
   try {
-    const { name, email, password, role } = req.body;
+    // 1. Check if user already exists
+    let user = await User.findOne({ email });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // 2. Create a new user instance
+    user = new User({
+      name,
+      email,
+      password,
+    });
 
-    const user = new User({ name, email, password: hashedPassword, role });
+    // 3. Hash the password before saving
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    // 4. Save the user to the database
     await user.save();
 
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    // 5. Create and sign a JSON Web Token (JWT)
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '5d' }, // Token expires in 5 days
+      (err, token) => {
+        if (err) throw err;
+        // 6. Send the token and user info back to the frontend
+        res.status(201).json({
+          token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          }
+        });
+      }
+    );
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
   }
 };
 
-exports.login = async (req, res) => {
-  try {
+
+// --- NEW LOGIN FUNCTION ---
+// @desc    Authenticate user & get token (Login)
+// @route   POST /api/auth/login
+// @access  Public
+const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    try {
+        // 1. Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+        // 2. Check if password matches
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+        // 3. If credentials are correct, create and sign a JWT
+        const payload = {
+            user: {
+                id: user.id,
+            },
+        };
 
-    res.status(200).json({ token, user: { id: user._id, name: user.name, role: user.role } });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '5d' },
+            (err, token) => {
+                if (err) throw err;
+                // 4. Send the token and user info back to the frontend
+                res.json({
+                    token,
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                    }
+                });
+            }
+        );
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server error');
+    }
+};
+
+
+module.exports = {
+  registerUser,
+  loginUser, // <-- Add loginUser to the export
 };

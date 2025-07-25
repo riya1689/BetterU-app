@@ -1,42 +1,69 @@
 import React, { createContext, useState, useContext } from 'react';
+import apiClient from '../services/apiClient'; // Import our API client
 
 // 1. Create the context
 const AuthContext = createContext();
 
 // 2. Create the provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // If user is null, they are logged out
-  const [isLoading, setIsLoading] = useState(true); // To show a loading screen at start
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Changed to false initially
 
-  // --- Mock Functions (we will connect these to the API later) ---
+  // --- REAL API FUNCTIONS ---
   
-  const login = (email, password) => {
-    console.log('Login function called with:', email, password);
-    // In a real app, you'd call your API here.
-    // For now, we'll just simulate a successful login.
-    setUser({ name: 'Riya Das', email: email }); 
+  const signup = async (name, email, password) => {
+    setIsLoading(true);
+    try {
+      // Make a POST request to our backend's /register endpoint
+      const response = await apiClient.post('/api/auth/register', {
+        name,
+        email,
+        password,
+      });
+      // The backend sends back a token and user info
+      const { token, user: userData } = response.data;
+      
+      // Store the token securely (we'll add this later)
+      console.log('Received token:', token);
+
+      // Set the user in our app's state
+      setUser(userData);
+
+    } catch (error) {
+      // Handle errors (e.g., user already exists)
+      console.error('Signup failed:', error.response?.data?.message || error.message);
+      alert('Signup Failed: ' + (error.response?.data?.message || 'Please try again.'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const signup = (name, email, password) => {
-    console.log('Signup function called with:', name, email, password);
-    // In a real app, you'd call your API here.
-    setUser({ name: name, email: email });
+  const login = async (email, password) => {
+    setIsLoading(true);
+    try {
+      // Make a POST request to our backend's /login endpoint
+      const response = await apiClient.post('/api/auth/login', {
+        email,
+        password,
+      });
+      const { token, user: userData } = response.data;
+
+      console.log('Received token:', token);
+      setUser(userData);
+
+    } catch (error) {
+      console.error('Login failed:', error.response?.data?.message || error.message);
+      alert('Login Failed: ' + (error.response?.data?.message || 'Invalid credentials.'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
-    console.log('Logout function called');
-    setUser(null); // Set user to null to log them out
+    setUser(null);
+    // We would also clear the stored token here
   };
   
-  // This will run once when the app starts to check if the user is already logged in
-  // For now, we'll just pretend it's loading for a second.
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-
   return (
     <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
       {children}
