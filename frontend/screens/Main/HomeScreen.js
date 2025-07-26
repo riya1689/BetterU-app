@@ -1,14 +1,32 @@
 import React from 'react';
-import { Text, StyleSheet, StatusBar, ScrollView, SafeAreaView, View } from 'react-native';
+// --- FIX: Added SafeAreaView to the import list ---
+import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../store/AuthContext'; // 1. Import useAuth
 import Card from '../../components/common/Card';
 import FeatureCard from '../../components/specific/FeatureCard';
-import AppHeader from '../../components/specific/AppHeader'; // Import the new header
+import AppHeader from '../../components/specific/AppHeader';
+
+// --- Helper function to get the correct greeting ---
+const getGreeting = () => {
+  const currentHour = new Date().getHours();
+  if (currentHour < 12) {
+    return 'Good Morning';
+  } else if (currentHour < 18) {
+    return 'Good Afternoon';
+  } else {
+    return 'Good Evening';
+  }
+};
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const greeting = "Good Morning";
-  const userName = "Riya";
+  const { user } = useAuth(); // 2. Get the user from our context
+
+  // 3. Determine the greeting and name dynamically
+  const greeting = getGreeting();
+  // If the user exists, get their first name. Otherwise, use "There".
+  const displayName = user ? user.name.split(' ')[0] : 'There';
 
   const handlePress = (screenName) => {
     if (screenName) {
@@ -24,7 +42,8 @@ const HomeScreen = () => {
       <AppHeader />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.greeting}>{greeting}, {userName}</Text>
+        {/* --- 4. Use the new dynamic values --- */}
+        <Text style={styles.greeting}>{greeting}, {displayName}</Text>
         <Text style={styles.subHeader}>How are you feeling today?</Text>
         
         <Card style={{ marginBottom: 20 }}>
@@ -73,7 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1e3a8a',
-    marginTop: 20, // Add space below the new header
+    marginTop: 20,
   },
   subHeader: {
     fontSize: 18,
