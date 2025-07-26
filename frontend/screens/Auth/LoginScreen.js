@@ -11,7 +11,8 @@ const LoginScreen = ({ navigation }) => {
   const { login } = useAuth();
 
   const handleLogin = () => {
-    login(email, password);
+    // --- CHANGE: Pass the navigation object to the login function ---
+    login(email, password, navigation);
   };
 
   return (
@@ -48,7 +49,6 @@ const LoginScreen = ({ navigation }) => {
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
               style={styles.eyeIcon}
             >
-              {/* --- UPDATED ICON NAMES --- */}
               <Ionicons 
                 name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
                 size={24} 

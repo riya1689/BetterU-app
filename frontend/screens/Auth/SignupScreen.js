@@ -20,7 +20,8 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
     const fullName = `${firstName} ${lastName}`;
-    signup(fullName, email, password);
+    // --- CHANGE: Pass the navigation object to the signup function ---
+    signup(fullName, email, password, navigation);
   };
 
   return (
@@ -74,7 +75,6 @@ const SignupScreen = ({ navigation }) => {
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
               style={styles.eyeIcon}
             >
-              {/* --- UPDATED ICON NAMES --- */}
               <Ionicons 
                 name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
                 size={24} 
@@ -96,7 +96,6 @@ const SignupScreen = ({ navigation }) => {
               onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
               style={styles.eyeIcon}
             >
-              {/* --- UPDATED ICON NAMES --- */}
               <Ionicons 
                 name={isConfirmPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
                 size={24} 

@@ -1,36 +1,34 @@
 import React, { createContext, useState, useContext } from 'react';
-import apiClient from '../services/apiClient'; // Import our API client
+import apiClient from '../services/apiClient';
 
-// 1. Create the context
 const AuthContext = createContext();
 
-// 2. Create the provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Changed to false initially
+  const [isLoading, setIsLoading] = useState(false);
 
-  // --- REAL API FUNCTIONS ---
-  
-  const signup = async (name, email, password) => {
+  // The login, signup, and logout functions now accept a 'navigation' object
+  // so they can control the app's screens.
+
+  const signup = async (name, email, password, navigation) => {
     setIsLoading(true);
     try {
-      // Make a POST request to our backend's /register endpoint
       const response = await apiClient.post('/api/auth/register', {
         name,
         email,
         password,
       });
-      // The backend sends back a token and user info
-      const { token, user: userData } = response.data;
-      
-      // Store the token securely (we'll add this later)
-      console.log('Received token:', token);
-
-      // Set the user in our app's state
+      const { user: userData } = response.data;
       setUser(userData);
 
+      // --- NEW NAVIGATION LOGIC ---
+      // On success, navigate to the Success screen with a message
+      navigation.navigate('Success', {
+        message: 'Signup Successful!',
+        nextScreen: 'MainTabs', // The screen to go to after the success message
+      });
+
     } catch (error) {
-      // Handle errors (e.g., user already exists)
       console.error('Signup failed:', error.response?.data?.message || error.message);
       alert('Signup Failed: ' + (error.response?.data?.message || 'Please try again.'));
     } finally {
@@ -38,18 +36,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, navigation) => {
     setIsLoading(true);
     try {
-      // Make a POST request to our backend's /login endpoint
       const response = await apiClient.post('/api/auth/login', {
         email,
         password,
       });
-      const { token, user: userData } = response.data;
-
-      console.log('Received token:', token);
+      const { user: userData } = response.data;
       setUser(userData);
+
+      // --- NEW NAVIGATION LOGIC ---
+      navigation.navigate('Success', {
+        message: 'Login Successful!',
+        nextScreen: 'MainTabs',
+      });
 
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
@@ -59,9 +60,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = (navigation) => {
     setUser(null);
-    // We would also clear the stored token here
+    
+    // --- NEW NAVIGATION LOGIC ---
+    navigation.navigate('Success', {
+      message: 'Logout Successful!',
+      nextScreen: 'MainTabs',
+    });
   };
   
   return (
@@ -71,7 +77,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 3. Create a custom hook to use the context easily
 export const useAuth = () => {
   return useContext(AuthContext);
 };

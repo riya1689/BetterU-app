@@ -32,6 +32,11 @@ const ProfileScreen = () => {
   const handleLoginPress = () => {
     navigation.navigate('Login');
   };
+  
+  const handleLogout = () => {
+    // --- CHANGE: Pass the navigation object to the logout function ---
+    logout(navigation);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,7 +67,7 @@ const ProfileScreen = () => {
         <ProfileMenuItem icon="📊" text="Your Analytics" onPress={handleLockedFeature} />
         {/* Only show the Logout button if the user is logged in */}
         {user && (
-            <ProfileMenuItem icon="🚪" text="Logout" onPress={logout} />
+            <ProfileMenuItem icon="🚪" text="Logout" onPress={handleLogout} />
         )}
       </View>
 
