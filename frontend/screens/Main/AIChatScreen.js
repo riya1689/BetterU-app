@@ -1,89 +1,122 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import AuthGuard from '../../components/specific/AuthGuard';
-
-// MOCK DATA: Sample chat messages
-const INITIAL_MESSAGES = [
-  {
-    id: '1',
-    text: 'Hello! I am BetterU\'s AI assistant. Feel free to share what\'s on your mind. I\'m here to listen.',
-    sender: 'ai',
-  },
-  {
-    id: '2',
-    text: 'I\'ve been feeling really anxious lately.',
-    sender: 'user',
-  },
-  {
-    id: '3',
-    text: 'I understand. It takes courage to share that. Could you tell me a bit more about what this anxiety feels like?',
-    sender: 'ai',
-  },
-];
+import { useTheme } from '../../store/ThemeContext';
+import apiClient from '../../services/apiClient'; // Import our API client
 
 const AIChatScreen = () => {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  // Start with only the initial AI message
+  const [messages, setMessages] = useState([
+    {
+      id: '1',
+      text: 'Hello! I am BetterU\'s AI assistant. Feel free to share what\'s on your mind. I\'m here to listen.',
+      sender: 'ai',
+    },
+  ]);
   const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // To show a loading indicator for AI replies
+  const { theme } = useTheme();
+  const flatListRef = useRef();
 
-  const handleSend = () => {
-    if (inputText.trim() === '') return;
+  const handleSend = async () => {
+    if (inputText.trim() === '' || isLoading) return;
 
-    // Add user's message to the chat
-    const newUserMessage = {
+    const userMessage = {
       id: Date.now().toString(),
       text: inputText,
       sender: 'user',
     };
-    setMessages(prev => [...prev, newUserMessage]);
-    setInputText('');
 
-    // In a real app, you would send the message to your OpenAI backend here
-    // and then add the AI's response.
+    // Add user's message and show a loading indicator
+    setMessages(prev => [...prev, userMessage]);
+    setInputText('');
+    setIsLoading(true);
+
+    // --- REAL API CALL ---
+    try {
+      // Prepare the chat history for the Gemini API
+      // It needs a specific format: { role: 'user'/'model', parts: [{ text: '...' }] }
+      const history = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.text }],
+      }));
+
+      // Call our backend's /api/ai/chat endpoint
+      const response = await apiClient.post('/api/ai/chat', {
+        userMessage: userMessage.text,
+        history: history,
+      });
+
+      const aiReply = {
+        id: Date.now().toString() + 'ai',
+        text: response.data.reply,
+        sender: 'ai',
+      };
+      
+      // Add the AI's reply to the chat
+      setMessages(prev => [...prev, aiReply]);
+
+    } catch (error) {
+      console.error('Failed to get AI response:', error);
+      const errorReply = {
+        id: Date.now().toString() + 'err',
+        text: 'Sorry, I\'m having trouble connecting. Please try again.',
+        sender: 'ai',
+      };
+      setMessages(prev => [...prev, errorReply]);
+    } finally {
+      setIsLoading(false); // Hide the loading indicator
+    }
   };
+
+  const themedStyles = styles(theme);
 
   return (
     <AuthGuard>
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={90}
-    >
-      <FlatList
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={[
-            styles.messageBubble,
-            item.sender === 'user' ? styles.userBubble : styles.aiBubble
-          ]}>
-            <Text style={item.sender === 'user' ? styles.userText : styles.aiText}>
-              {item.text}
-            </Text>
-          </View>
-        )}
-        style={styles.chatContainer}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Type your message..."
-          placeholderTextColor="#9ca3af"
+      <KeyboardAvoidingView 
+        style={[themedStyles.container, { backgroundColor: theme.background }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={90}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <View style={[
+              themedStyles.messageBubble,
+              item.sender === 'user' ? [themedStyles.userBubble, { backgroundColor: theme.primary }] : [themedStyles.aiBubble, { backgroundColor: theme.card }]
+            ]}>
+              <Text style={item.sender === 'user' ? themedStyles.userText : [themedStyles.aiText, { color: theme.text }]}>
+                {item.text}
+              </Text>
+            </View>
+          )}
+          style={themedStyles.chatContainer}
+          onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        {isLoading && <ActivityIndicator style={{ marginVertical: 10 }} color={theme.primary} />}
+        <View style={[themedStyles.inputContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <TextInput
+            style={[themedStyles.input, { backgroundColor: theme.background, color: theme.text }]}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Type your message..."
+            placeholderTextColor={theme.secondaryText}
+            editable={!isLoading} // Disable input while AI is thinking
+          />
+          <TouchableOpacity style={[themedStyles.sendButton, { backgroundColor: theme.primary }]} onPress={handleSend} disabled={isLoading}>
+            <Text style={themedStyles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </AuthGuard>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
   },
   chatContainer: {
     flex: 1,
@@ -96,12 +129,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userBubble: {
-    backgroundColor: '#1e3a8a',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 5,
   },
   aiBubble: {
-    backgroundColor: '#ffffff',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 5,
   },
@@ -110,19 +141,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   aiText: {
-    color: '#1f2937',
     fontSize: 16,
   },
   inputContainer: {
     flexDirection: 'row',
     padding: 10,
     borderTopWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: '#ffffff'
   },
   input: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
     borderRadius: 25,
     paddingHorizontal: 20,
     paddingVertical: 12,
@@ -130,7 +157,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   sendButton: {
-    backgroundColor: '#1e3a8a',
     paddingHorizontal: 20,
     justifyContent: 'center',
     borderRadius: 25,

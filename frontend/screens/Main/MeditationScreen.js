@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
 import AuthGuard from '../../components/specific/AuthGuard';
+import { useTheme } from '../../store/ThemeContext'; // 1. Import useTheme
 
-// MOCK DATA: This will come from your backend later
+// MOCK DATA
 const MOCK_TRACKS = [
   { id: '1', title: 'Morning Calm', category: 'Mindfulness', image: 'https://placehold.co/300x300/a2d2ff/333?text=Morning+Calm' },
   { id: '2', title: 'Deep Sleep', category: 'Sleep', image: 'https://placehold.co/300x300/bde0fe/333?text=Deep+Sleep' },
@@ -13,45 +14,49 @@ const MOCK_TRACKS = [
 ];
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width / 2) - 30; // Calculate width for two cards with margin
+const cardWidth = (width / 2) - 30;
 
 const MeditationScreen = () => {
+  const { theme } = useTheme(); // 2. Get the theme object
+
   const handlePress = (track) => {
-    // We will build the music player in a later step
     console.log('Selected Track:', track.title);
   };
 
+  // 3. Pass the theme to the styles function
+  const themedStyles = styles(theme);
+
   return (
     <AuthGuard>
-    <View style={styles.container}>
-      <Text style={styles.header}>Meditation Library</Text>
-      <FlatList
-        data={MOCK_TRACKS}
-        keyExtractor={(item) => item.id}
-        numColumns={2} // This creates the grid layout
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handlePress(item)} style={styles.cardContainer}>
-            <Image source={{ uri: item.image }} style={styles.cardImage} />
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardCategory}>{item.category}</Text>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
-    </View>
+      {/* 4. Apply dynamic theme colors */}
+      <View style={[themedStyles.container, { backgroundColor: theme.background }]}>
+        <Text style={[themedStyles.header, { color: theme.primary }]}>Meditation Library</Text>
+        <FlatList
+          data={MOCK_TRACKS}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handlePress(item)} style={[themedStyles.cardContainer, { backgroundColor: theme.card }]}>
+              <Image source={{ uri: item.image }} style={themedStyles.cardImage} />
+              <Text style={[themedStyles.cardTitle, { color: theme.primary }]}>{item.title}</Text>
+              <Text style={[themedStyles.cardCategory, { color: theme.secondaryText }]}>{item.category}</Text>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={themedStyles.listContent}
+        />
+      </View>
     </AuthGuard>
   );
 };
 
-const styles = StyleSheet.create({
+// --- 5. IMPORTANT CHANGE: Convert styles to a function ---
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
   },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1e3a8a',
     marginTop: 60,
     marginBottom: 20,
     paddingHorizontal: 20,
@@ -61,7 +66,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: cardWidth,
-    backgroundColor: 'white',
     borderRadius: 15,
     margin: 10,
     shadowColor: '#000',
@@ -72,20 +76,18 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: '100%',
-    height: cardWidth, // Make the image square
+    height: cardWidth,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
   cardTitle: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#1e3a8a',
     marginTop: 10,
     marginHorizontal: 10,
   },
   cardCategory: {
     fontSize: 14,
-    color: '#6b7280',
     marginHorizontal: 10,
     marginBottom: 10,
   },

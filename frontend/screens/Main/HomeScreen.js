@@ -1,13 +1,12 @@
 import React from 'react';
-// --- FIX: Added SafeAreaView to the import list ---
-import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../store/AuthContext'; // 1. Import useAuth
+import { useAuth } from '../../store/AuthContext';
+import { useTheme } from '../../store/ThemeContext'; // 1. Import useTheme
 import Card from '../../components/common/Card';
 import FeatureCard from '../../components/specific/FeatureCard';
 import AppHeader from '../../components/specific/AppHeader';
 
-// --- Helper function to get the correct greeting ---
 const getGreeting = () => {
   const currentHour = new Date().getHours();
   if (currentHour < 12) {
@@ -21,11 +20,10 @@ const getGreeting = () => {
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const { user } = useAuth(); // 2. Get the user from our context
+  const { user } = useAuth();
+  const { theme } = useTheme(); // 2. Get the theme object
 
-  // 3. Determine the greeting and name dynamically
   const greeting = getGreeting();
-  // If the user exists, get their first name. Otherwise, use "There".
   const displayName = user ? user.name.split(' ')[0] : 'There';
 
   const handlePress = (screenName) => {
@@ -36,24 +34,27 @@ const HomeScreen = () => {
     }
   };
 
+  // 3. Pass the theme to the styles function
+  const themedStyles = styles(theme);
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+    // 4. Apply dynamic theme colors to the components
+    <SafeAreaView style={[themedStyles.safeArea, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={theme.isDarkMode ? "light-content" : "dark-content"} />
       <AppHeader />
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* --- 4. Use the new dynamic values --- */}
-        <Text style={styles.greeting}>{greeting}, {displayName}</Text>
-        <Text style={styles.subHeader}>How are you feeling today?</Text>
+      <ScrollView contentContainerStyle={themedStyles.scrollContent}>
+        <Text style={[themedStyles.greeting, { color: theme.primary }]}>{greeting}, {displayName}</Text>
+        <Text style={[themedStyles.subHeader, { color: theme.secondaryText }]}>How are you feeling today?</Text>
         
-        <Card style={{ marginBottom: 20 }}>
-          <Text style={styles.cardTitle}>Your Daily Check-in</Text>
-          <Text style={styles.cardText}>
+        <Card style={{ marginBottom: 20, backgroundColor: theme.card }}>
+          <Text style={[themedStyles.cardTitle, { color: theme.primary }]}>Your Daily Check-in</Text>
+          <Text style={[themedStyles.cardText, { color: theme.text }]}>
             A moment of reflection is a step towards wellness. Let's start your day with intention.
           </Text>
         </Card>
 
-        <View style={styles.featureGrid}>
+        <View style={themedStyles.featureGrid}>
           <FeatureCard 
             icon="📅" 
             title="Book a Session" 
@@ -80,10 +81,10 @@ const HomeScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+// --- 5. IMPORTANT CHANGE: Convert styles to a function ---
+const styles = (theme) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -91,23 +92,19 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1e3a8a',
     marginTop: 20,
   },
   subHeader: {
     fontSize: 18,
-    color: '#475569',
     marginBottom: 20,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1e3a8a',
     marginBottom: 10,
   },
   cardText: {
     fontSize: 16,
-    color: '#334155',
     lineHeight: 24,
   },
   featureGrid: {

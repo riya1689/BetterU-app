@@ -3,8 +3,8 @@ const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
 
-// --- 1. IMPORT YOUR NEW ROUTE FILE ---
 const authRoutes = require('./routes/authRoutes');
+const aiRoutes = require('./routes/aiRoutes'); // <-- 1. IMPORT YOUR NEW AI ROUTE FILE
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,10 +19,13 @@ app.get("/", (req, res) => {
   res.send("✅ Backend is live!");
 });
 
-// --- 2. USE THE AUTH ROUTES ---
-// This tells the app that any URL starting with /api/auth
-// should be handled by the authRoutes file.
+// Use the Auth Routes
 app.use('/api/auth', authRoutes);
+
+// --- 2. USE THE AI ROUTES ---
+// This tells the app that any URL starting with /api/ai
+// should be handled by the aiRoutes file.
+app.use('/api/ai', aiRoutes);
 
 
 app.listen(PORT, () => {

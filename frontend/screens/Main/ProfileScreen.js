@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, Switch } from 'react-native';
 import { useAuth } from '../../store/AuthContext';
+import { useTheme } from '../../store/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import ToastMessage from '../../components/common/ToastMessage';
+import { Ionicons } from '@expo/vector-icons';
 
 // Reusable component for the menu items
-const ProfileMenuItem = ({ icon, text, onPress }) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-    <Text style={styles.menuItemIcon}>{icon}</Text>
-    <Text style={styles.menuItemText}>{text}</Text>
+const ProfileMenuItem = ({ icon, text, onPress, children, theme }) => (
+  <TouchableOpacity style={[styles(theme).menuItem, {backgroundColor: theme.card}]} onPress={onPress} disabled={!!children}>
+    <View style={styles(theme).menuItemContent}>
+      <Ionicons name={icon} size={22} color={theme.secondaryText} style={styles(theme).menuItemIcon} />
+      <Text style={[styles(theme).menuItemText, {color: theme.text}]}>{text}</Text>
+    </View>
+    {children}
   </TouchableOpacity>
 );
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { user, logout } = useAuth(); // Get user and logout function from our context
+  const { user, logout } = useAuth();
+  const { isDarkMode, theme, toggleTheme } = useTheme(); // Get the theme object
   const [toastVisible, setToastVisible] = useState(false);
 
   const handleLockedFeature = () => {
-    // If a logged-out user clicks a locked item, show the toast message.
     if (!user) {
       setToastVisible(true);
-    }
-    // If the user is logged in, this would navigate to the feature.
-    // For now, we can just log a message.
-    else {
+    } else {
         alert('This feature is coming soon!');
     }
   };
@@ -34,44 +36,51 @@ const ProfileScreen = () => {
   };
   
   const handleLogout = () => {
-    // --- CHANGE: Pass the navigation object to the logout function ---
     logout(navigation);
   };
 
+  // Pass the theme to the styles
+  const themedStyles = styles(theme);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.profileHeader}>
+    <SafeAreaView style={[themedStyles.container, {backgroundColor: theme.background}]}>
+      <View style={themedStyles.profileHeader}>
         <Image 
-          // We can add the user's real avatar later
           source={{ uri: 'https://placehold.co/150x150/E0E0E0/333?text= ' }} 
-          style={styles.avatar} 
+          style={[themedStyles.avatar, {borderColor: theme.primary}]} 
         />
-        {/* --- DYNAMIC NAME/MESSAGE --- */}
         {user ? (
-          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={[themedStyles.userName, {color: theme.primary}]}>{user.name}</Text>
         ) : (
-          <Text style={styles.userName}>Please log in / Sign Up</Text>
+          <Text style={[themedStyles.userName, {color: theme.primary}]}>Please log in / Sign Up</Text>
         )}
-        <Text style={styles.userHandle}>Welcome to BetterU</Text>
+        <Text style={[themedStyles.userHandle, {color: theme.secondaryText}]}>Welcome to BetterU</Text>
       </View>
       
-      {/* --- DYNAMIC LOGIN/LOGOUT BUTTONS --- */}
       {!user && (
-        <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-          <Text style={styles.loginButtonText}>Log In</Text>
+        <TouchableOpacity style={[themedStyles.loginButton, {backgroundColor: theme.primary}]} onPress={handleLoginPress}>
+          <Text style={[themedStyles.loginButtonText, {color: theme.card}]}>Log In</Text>
         </TouchableOpacity>
       )}
 
-      <View style={styles.menuContainer}>
-        <ProfileMenuItem icon="🔖" text="Bookmarks" onPress={handleLockedFeature} />
-        <ProfileMenuItem icon="📊" text="Your Analytics" onPress={handleLockedFeature} />
-        {/* Only show the Logout button if the user is logged in */}
+      <View style={themedStyles.menuContainer}>
+        <ProfileMenuItem icon="moon-outline" text="Dark Mode" theme={theme}>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isDarkMode ? "#f4f3f4" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleTheme}
+            value={isDarkMode}
+          />
+        </ProfileMenuItem>
+
+        <ProfileMenuItem icon="bookmark-outline" text="Bookmarks" onPress={handleLockedFeature} theme={theme} />
+        <ProfileMenuItem icon="analytics-outline" text="Your Analytics" onPress={handleLockedFeature} theme={theme} />
         {user && (
-            <ProfileMenuItem icon="🚪" text="Logout" onPress={handleLogout} />
+            <ProfileMenuItem icon="log-out-outline" text="Logout" onPress={handleLogout} theme={theme} />
         )}
       </View>
 
-      {/* --- TEMPORARY TOAST MESSAGE --- */}
       <ToastMessage 
         visible={toastVisible} 
         message="Please log in/Sign Up"
@@ -81,10 +90,10 @@ const ProfileScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+// --- IMPORTANT CHANGE: Convert styles to a function ---
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f8',
   },
   profileHeader: {
     alignItems: 'center',
@@ -97,21 +106,17 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     marginBottom: 15,
     borderWidth: 3,
-    borderColor: '#1e3a8a',
   },
   userName: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1e3a8a',
     textAlign: 'center',
   },
   userHandle: {
     fontSize: 16,
-    color: '#475569',
     marginTop: 4,
   },
   loginButton: {
-    backgroundColor: '#1e3a8a',
     paddingVertical: 15,
     borderRadius: 30,
     alignItems: 'center',
@@ -119,7 +124,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   loginButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -129,18 +133,20 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    justifyContent: 'space-between',
     padding: 20,
     borderRadius: 15,
     marginBottom: 15,
   },
+  menuItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   menuItemIcon: {
-    fontSize: 22,
     marginRight: 20,
   },
   menuItemText: {
     fontSize: 18,
-    color: '#334155',
     fontWeight: '500',
   },
 });
