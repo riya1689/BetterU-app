@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Keyboard
 import AuthGuard from '../../components/specific/AuthGuard';
 import { useTheme } from '../../store/ThemeContext';
 import apiClient from '../../services/apiClient'; // Import our API client
-
+//deployment on vercel
 const AIChatScreen = () => {
   // Start with only the initial AI message
   const [messages, setMessages] = useState([
@@ -34,9 +34,10 @@ const AIChatScreen = () => {
 
     // --- REAL API CALL ---
     try {
-      // Prepare the chat history for the Gemini API
-      // It needs a specific format: { role: 'user'/'model', parts: [{ text: '...' }] }
-      const history = messages.map(msg => ({
+      // --- FIX: Exclude the initial AI greeting from the history ---
+      // The Gemini API requires the history to start with a 'user' role.
+      // We use .slice(1) to remove the first message (the AI's greeting).
+      const history = messages.slice(1).map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }],
       }));
