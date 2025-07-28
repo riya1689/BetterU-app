@@ -24,20 +24,18 @@ Your conversation history with the user will be provided. Use it to remember wha
 
 const getAIResponse = async (userMessage, chatHistory) => {
   try {
+    // --- FIX: Updated the model name to the latest version ---
     const model = genAI.getGenerativeModel({ 
-        model: "gemini-pro",
+        model: "gemini-1.5-flash-latest", // This is the new, correct model name
         systemInstruction: systemPrompt,
     });
 
-    // --- UPDATE: This is the new logic to handle the history correctly ---
-    // The Gemini API requires the history to start with a 'user' role.
-    // If our history starts with the AI's greeting, we simply ignore it for the API call.
-    const validHistory = chatHistory.length > 0 && chatHistory[0].role === 'model' 
+    const validHistory = chatHistory.length > 1 && chatHistory[0].role === 'model' 
       ? chatHistory.slice(1) 
       : chatHistory;
 
     const chat = model.startChat({
-        history: validHistory, // Use the corrected history
+        history: validHistory,
         generationConfig: {
             maxOutputTokens: 500,
         },
