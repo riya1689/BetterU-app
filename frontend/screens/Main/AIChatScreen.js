@@ -2,10 +2,9 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import AuthGuard from '../../components/specific/AuthGuard';
 import { useTheme } from '../../store/ThemeContext';
-import apiClient from '../../services/apiClient'; // Import our API client
-//deployment on vercel
+import apiClient from '../../services/apiClient';
+
 const AIChatScreen = () => {
-  // Start with only the initial AI message
   const [messages, setMessages] = useState([
     {
       id: '1',
@@ -14,7 +13,7 @@ const AIChatScreen = () => {
     },
   ]);
   const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // To show a loading indicator for AI replies
+  const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
   const flatListRef = useRef();
 
@@ -27,25 +26,22 @@ const AIChatScreen = () => {
       sender: 'user',
     };
 
-    // Add user's message and show a loading indicator
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage]; // Add the new user message immediately
+    setMessages(newMessages);
     setInputText('');
     setIsLoading(true);
 
-    // --- REAL API CALL ---
     try {
-      // --- FIX: Exclude the initial AI greeting from the history ---
-      // The Gemini API requires the history to start with a 'user' role.
-      // We use .slice(1) to remove the first message (the AI's greeting).
-      const history = messages.slice(1).map(msg => ({
+      // --- UPDATE: We now send the FULL history to the backend ---
+      // This is simpler and lets the backend handle the logic of preparing it for Gemini.
+      const history = newMessages.map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }],
       }));
 
-      // Call our backend's /api/ai/chat endpoint
       const response = await apiClient.post('/api/ai/chat', {
         userMessage: userMessage.text,
-        history: history,
+        history: history, // Send the complete history
       });
 
       const aiReply = {
@@ -54,7 +50,6 @@ const AIChatScreen = () => {
         sender: 'ai',
       };
       
-      // Add the AI's reply to the chat
       setMessages(prev => [...prev, aiReply]);
 
     } catch (error) {
@@ -66,7 +61,7 @@ const AIChatScreen = () => {
       };
       setMessages(prev => [...prev, errorReply]);
     } finally {
-      setIsLoading(false); // Hide the loading indicator
+      setIsLoading(false);
     }
   };
 
@@ -104,7 +99,7 @@ const AIChatScreen = () => {
             onChangeText={setInputText}
             placeholder="Type your message..."
             placeholderTextColor={theme.secondaryText}
-            editable={!isLoading} // Disable input while AI is thinking
+            editable={!isLoading}
           />
           <TouchableOpacity style={[themedStyles.sendButton, { backgroundColor: theme.primary }]} onPress={handleSend} disabled={isLoading}>
             <Text style={themedStyles.sendButtonText}>Send</Text>

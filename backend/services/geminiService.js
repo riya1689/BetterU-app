@@ -1,9 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Initialize the Google AI client with your API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// This is the "brain" of your AI. It defines its personality and rules.
 const systemPrompt = `
 You are "BetterU," a friendly, positive, and empathetic AI Wellness Companion. 
 Your primary goal is to provide initial mental health support. You are not a doctor and you must never give medical advice.
@@ -31,8 +29,15 @@ const getAIResponse = async (userMessage, chatHistory) => {
         systemInstruction: systemPrompt,
     });
 
+    // --- UPDATE: This is the new logic to handle the history correctly ---
+    // The Gemini API requires the history to start with a 'user' role.
+    // If our history starts with the AI's greeting, we simply ignore it for the API call.
+    const validHistory = chatHistory.length > 0 && chatHistory[0].role === 'model' 
+      ? chatHistory.slice(1) 
+      : chatHistory;
+
     const chat = model.startChat({
-        history: chatHistory,
+        history: validHistory, // Use the corrected history
         generationConfig: {
             maxOutputTokens: 500,
         },
