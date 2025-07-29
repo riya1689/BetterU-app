@@ -8,7 +8,9 @@ import SuccessScreen from '../screens/Auth/SuccessScreen';
 import AppointmentScreen from '../screens/Main/AppointmentScreen';
 import PaymentScreen from '../screens/Main/PaymentScreen';
 import SplashScreen from '../screens/Main/SplashScreen';
-import WelcomeScreen from '../screens/Main/WelcomeScreen'; // <-- 1. Import the new screen
+// --- FIX: Corrected the import path for WelcomeScreen ---
+import WelcomeScreen from '../screens/Main/WelcomeScreen';
+import QuestionScreen from '../screens/Main/QuestionScreen'; // <-- 1. Import the new screen
 
 const Stack = createStackNavigator();
 
@@ -19,6 +21,7 @@ const AppNavigator = () => {
       {/* --- All screens are now active --- */}
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} /> 
+      <Stack.Screen name="Question" component={QuestionScreen} /> 
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />

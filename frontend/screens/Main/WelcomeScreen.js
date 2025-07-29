@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Image, TouchableOpacity, StatusBar } from 'react-native';
-import { useTheme } from '../../store/ThemeContext'; // Correct path for a file in screens/Main
+// --- FIX: Corrected the import path for useTheme ---
+import { useTheme } from '../../store/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const WelcomeScreen = ({ navigation }) => {
@@ -8,7 +9,8 @@ const WelcomeScreen = ({ navigation }) => {
   const themedStyles = styles(theme);
 
   const handleNext = () => {
-    navigation.replace('MainTabs');
+    // --- UPDATE: Navigate to the new Question screen instead of MainTabs ---
+    navigation.replace('Question');
   };
 
   return (
@@ -72,7 +74,7 @@ const styles = (theme) => StyleSheet.create({
   },
   footer: {
     padding: 30,
-    alignItems: 'flex-end',
+    alignItems: 'flex-end', // Align button to the right
   },
   nextButton: {
     flexDirection: 'row',
