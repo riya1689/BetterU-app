@@ -1,31 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ImageBackground } from 'react-native';
 import { useTheme } from '../../store/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
-// For now, we use a single mock question to build the UI.
-// We will make this dynamic in the next steps.
-const MOCK_QUESTION = {
-  id: '1',
-  text: 'Where are you feeling your stress most?',
-  options: ['In my mind', 'In my chest', 'In my stomach', 'Everywhere', 'Not sure'],
+// --- 1. Add the full list of questions ---
+const ALL_QUESTIONS = [
+  { id: '1', text: 'Where are you feeling your stress most?', options: ['In my mind', 'In my chest', 'In my stomach', 'Everywhere', 'Not sure'] },
+  { id: '2', text: "What's your goal for today?", options: ['Just make it through', 'Be kind to myself', 'Focus on healing', 'Try something new', 'Find some peace'] },
+  { id: '3', text: 'When did you last feel truly okay?', options: ['Today', 'This week', 'A few weeks ago', 'Can’t remember', 'I’m not sure'] },
+  { id: '4', text: 'How are you sleeping lately?', options: ['Sleeping well', 'Trouble falling asleep', 'Waking up often', 'Not sleeping at all', 'Not sure'] },
+  { id: '5', text: 'What do you need most right now?', options: ['Someone to understand', 'A moment to breathe', 'A gentle push forward', 'Emotional release', 'Distraction or lightness'] },
+  { id: '6', text: 'What’s one word that captures your mood?', options: ['Peaceful', 'Restless', 'Lonely', 'Hopeful', 'Confused'] },
+  { id: '7', text: 'How’s your heart feeling right now?', options: ['Light and happy', 'Heavy and tired', 'A bit anxious', 'Numb or quiet', 'Unsure'] },
+];
+
+// Helper function to get two random, unique questions
+const getRandomQuestions = () => {
+  const shuffled = [...ALL_QUESTIONS].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 2);
 };
 
 const QuestionScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const themedStyles = styles(theme);
 
+  // --- 2. Select two random questions when the screen loads ---
+  useEffect(() => {
+    setQuestions(getRandomQuestions());
+  }, []);
+
+  // --- 3. Update the handleNext function with the new logic ---
   const handleNext = () => {
-    // In the next steps, this will navigate to the next question or the home screen.
-    // For now, it will just log the selected answer.
-    if (selectedOption) {
-      console.log('Selected:', selectedOption);
-      alert(`You selected: ${selectedOption}`);
-    } else {
+    if (!selectedOption) {
       alert('Please select an option.');
+      return;
+    }
+
+    // If there is another question, go to the next one.
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedOption(null); // Reset selection for the new question
+    } else {
+      // If this was the last question, navigate to the main app.
+      navigation.replace('MainTabs');
     }
   };
+
+  // If questions are not loaded yet, show a loading state
+  if (questions.length === 0) {
+    return <View style={[themedStyles.container, { backgroundColor: 'white' }]} />;
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <ImageBackground 
@@ -37,10 +66,10 @@ const QuestionScreen = ({ navigation }) => {
         
         <View style={themedStyles.content}>
           <Text style={themedStyles.headerText}>Take Your Time!</Text>
-          <Text style={themedStyles.questionText}>{MOCK_QUESTION.text}</Text>
+          <Text style={themedStyles.questionText}>{currentQuestion.text}</Text>
 
           <View style={themedStyles.optionsContainer}>
-            {MOCK_QUESTION.options.map((option) => (
+            {currentQuestion.options.map((option) => (
               <TouchableOpacity 
                 key={option}
                 style={[
@@ -81,7 +110,7 @@ const styles = (theme) => StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent overlay for readability
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   content: {
     flex: 1,
