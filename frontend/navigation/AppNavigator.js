@@ -11,7 +11,7 @@ import SplashScreen from '../screens/Main/SplashScreen';
 // --- FIX: Corrected the import path for WelcomeScreen ---
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
 import QuestionScreen from '../screens/Main/QuestionScreen'; // <-- 1. Import the new screen
-
+import QuoteScreen from '../screens/Main/QuoteScreen'; // <-- 1. Import the new screen
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -22,6 +22,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} /> 
       <Stack.Screen name="Question" component={QuestionScreen} /> 
+      <Stack.Screen name="Quote" component={QuoteScreen} /> 
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />

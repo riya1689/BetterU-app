@@ -44,8 +44,8 @@ const QuestionScreen = ({ navigation }) => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedOption(null); // Reset selection for the new question
     } else {
-      // If this was the last question, navigate to the main app.
-      navigation.replace('MainTabs');
+      // --- UPDATE: Navigate to the new Quote screen instead of MainTabs ---
+      navigation.replace('Quote');
     }
   };
 
