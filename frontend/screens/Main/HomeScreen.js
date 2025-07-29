@@ -1,11 +1,29 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, SafeAreaView, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store/AuthContext';
-import { useTheme } from '../../store/ThemeContext'; // 1. Import useTheme
-import Card from '../../components/common/Card';
+import { useTheme } from '../../store/ThemeContext';
 import FeatureCard from '../../components/specific/FeatureCard';
 import AppHeader from '../../components/specific/AppHeader';
+import ExpertCard from '../../components/specific/ExpertCard';
+
+// --- UPDATE: Using a local image for the first expert ---
+const MOCK_EXPERTS = [
+    { 
+      id: '1', 
+      name: 'Dr. Anika Rahman', 
+      specialization: 'CBT', 
+      // This now uses require() to load the local image
+      image: require('../../assets/images/BetterU_Dr_Anika.png') 
+    },
+    { id: '2', name: 'Dr. Fahim Ahmed', specialization: 'Child Psychology',
+      image: require('../../assets/images/BetterU_Dr_Fahim_Ahmed.png') },
+    { id: '3', name: 'Dr. Sadia Islam', specialization: 'Trauma & PTSD', 
+      image: require('../../assets/images/BetterU_Dr_Sadia_Islam.png') },
+    { id: '4', name: 'Dr. Ben Carter', specialization: 'Anxiety', 
+      image: require('../../assets/images/BetterU_Dr_4.png') },
+];
+// ---------------------------------------------------------
 
 const getGreeting = () => {
   const currentHour = new Date().getHours();
@@ -21,7 +39,7 @@ const getGreeting = () => {
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const { theme } = useTheme(); // 2. Get the theme object
+  const { theme } = useTheme();
 
   const greeting = getGreeting();
   const displayName = user ? user.name.split(' ')[0] : 'There';
@@ -34,11 +52,13 @@ const HomeScreen = () => {
     }
   };
 
-  // 3. Pass the theme to the styles function
+  const handleExpertPress = (expert) => {
+      console.log('Selected expert:', expert.name);
+  }
+
   const themedStyles = styles(theme);
 
   return (
-    // 4. Apply dynamic theme colors to the components
     <SafeAreaView style={[themedStyles.safeArea, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.isDarkMode ? "light-content" : "dark-content"} />
       <AppHeader />
@@ -47,12 +67,22 @@ const HomeScreen = () => {
         <Text style={[themedStyles.greeting, { color: theme.primary }]}>{greeting}, {displayName}</Text>
         <Text style={[themedStyles.subHeader, { color: theme.secondaryText }]}>How are you feeling today?</Text>
         
-        <Card style={{ marginBottom: 20, backgroundColor: theme.card }}>
-          <Text style={[themedStyles.cardTitle, { color: theme.primary }]}>Your Daily Check-in</Text>
-          <Text style={[themedStyles.cardText, { color: theme.text }]}>
-            A moment of reflection is a step towards wellness. Let's start your day with intention.
-          </Text>
-        </Card>
+        <View style={themedStyles.sliderSection}>
+            <Text style={[themedStyles.sectionTitle, { color: theme.text }]}>Available Experts for you</Text>
+            <FlatList
+                data={MOCK_EXPERTS}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => (
+                    <ExpertCard 
+                        expert={item}
+                        onPress={() => handleExpertPress(item)}
+                    />
+                )}
+                contentContainerStyle={{ paddingLeft: 20 }}
+            />
+        </View>
 
         <View style={themedStyles.featureGrid}>
           <FeatureCard 
@@ -81,36 +111,36 @@ const HomeScreen = () => {
   );
 };
 
-// --- 5. IMPORTANT CHANGE: Convert styles to a function ---
 const styles = (theme) => StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 20,
-  },
+  scrollContent: {},
   greeting: {
     fontSize: 28,
     fontWeight: 'bold',
     marginTop: 20,
+    paddingHorizontal: 20,
   },
   subHeader: {
     fontSize: 18,
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  sliderSection: {
+      marginBottom: 30,
   },
-  cardText: {
-    fontSize: 16,
-    lineHeight: 24,
+  sectionTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 15,
+      paddingHorizontal: 20,
   },
   featureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
 });
 
