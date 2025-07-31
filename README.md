@@ -39,7 +39,6 @@ BetterU brings together modern technology and expert care through:
 - **Frontend**: React Native (deployed via [Expo Go](https://expo.dev))
 - **Backend**: Node.js
 - **Database**: Firebase + MongoDB (hybrid)
-- **AI Integration**: OpenAI API
 - **Payment Gateway**: AmarPay
 
 ## Key Features
@@ -68,4 +67,4 @@ BetterU brings together modern technology and expert care through:
 ## Deployment
 
 - Developed with **React Native**
-- Deployed via **Expo Go** for quick preview and testing
+- Deployed via **Expo Go** for quick preview and testing, **Vercel**, **Render**
