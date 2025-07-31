@@ -85,7 +85,7 @@ const CounselingScreen = () => {
             />
         </View>
 
-        <Text style={[themedStyles.listTitle, { color: theme.text }]}>Live General Doctors</Text>
+        <Text style={[themedStyles.listTitle, { color: theme.text }]}>Live Doctors</Text>
 
         <FlatList
           data={filteredPsychologists}

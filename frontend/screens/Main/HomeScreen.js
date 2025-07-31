@@ -6,6 +6,7 @@ import { useTheme } from '../../store/ThemeContext';
 import FeatureCard from '../../components/specific/FeatureCard';
 import AppHeader from '../../components/specific/AppHeader';
 import ExpertCard from '../../components/specific/ExpertCard';
+import AIChatBanner from '../../components/specific/AIChatBanner'; // 1. Import the new banner
 
 // --- UPDATE: Using a local image for the first expert ---
 const MOCK_EXPERTS = [
@@ -20,8 +21,8 @@ const MOCK_EXPERTS = [
       image: require('../../assets/images/BetterU_Dr_Fahim_Ahmed.png') },
     { id: '3', name: 'Dr. Sadia Islam', specialization: 'Trauma & PTSD', 
       image: require('../../assets/images/BetterU_Dr_Sadia_Islam.png') },
-    { id: '4', name: 'Dr. Ben Carter', specialization: 'Anxiety', 
-      image: require('../../assets/images/BetterU_Dr_4.png') },
+    { id: '4', name: 'Dr. Amit Hasan', specialization: 'Anxiety', 
+      image: require('../../assets/images/BetterU_Dr_4.png') }
 ];
 // ---------------------------------------------------------
 
@@ -83,29 +84,33 @@ const HomeScreen = () => {
                 contentContainerStyle={{ paddingLeft: 20 }}
             />
         </View>
-
+         {/* --- 2. Add the new AI Chat Banner here --- */}
+        <AIChatBanner />
+        {/* --- UPDATED FEATURE CARD SECTION --- */}
+        <Text style={[themedStyles.sectionTitle, { color: theme.text }]}>BetterU Care Toolkit</Text>
         <View style={themedStyles.featureGrid}>
           <FeatureCard 
-            icon="📅" 
+            imageSource={require('../../assets/images/BetterU_booking_session-removebg-preview.png')}
             title="Book a Session" 
             onPress={() => handlePress('Counseling')} 
           />
           <FeatureCard 
-            icon="🤖" 
+            imageSource={require('../../assets/images/BetterU_AI_chat-removebg-preview.png')}
             title="AI Assistant" 
             onPress={() => handlePress('AI Chat')} 
           />
           <FeatureCard 
-            icon="🧘" 
+            imageSource={require('../../assets/images/BetterU_meditation2.png')}
             title="Meditation" 
             onPress={() => handlePress('Meditate')} 
           />
           <FeatureCard 
-            icon="📝" 
+            imageSource={require('../../assets/images/BetterU_self_Assesment.png')}
             title="Self-Assess" 
             onPress={() => handlePress('Assess')}
           />
         </View>
+        {/* ------------------------------------ */}
       </ScrollView>
     </SafeAreaView>
   );

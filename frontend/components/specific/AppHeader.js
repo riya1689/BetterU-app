@@ -6,22 +6,42 @@ const AppHeader = () => {
   const navigation = useNavigation();
 
   // This function will handle the login press.
-  const onLoginPress = () => {
-    // This now navigates to the full-page Login screen
-    navigation.navigate('Login'); 
+  // const onLoginPress = () => {
+  //   // This now navigates to the full-page Login screen
+  //   navigation.navigate('Login'); 
+  // };
+
+//   return (
+//     <View style={styles.container}>
+//       {/* Left Side: App Logo */}
+//       <Text style={styles.logo}>BetterU</Text>
+
+//       {/* Right Side: Buttons */}
+//       <View style={styles.rightContainer}>
+//         <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
+//           <Text style={styles.loginText}>LOGIN</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity onPress={onLoginPress}>
+//           <Image 
+//             source={{ uri: 'https://placehold.co/100x100/E0E0E0/333?text= ' }} 
+//             style={styles.avatar} 
+//           />
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   );
+// };
+const onProfilePress = () => {
+    navigation.navigate('Profile');
   };
 
   return (
     <View style={styles.container}>
-      {/* Left Side: App Logo */}
       <Text style={styles.logo}>BetterU</Text>
 
-      {/* Right Side: Buttons */}
       <View style={styles.rightContainer}>
-        <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
-          <Text style={styles.loginText}>LOGIN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onLoginPress}>
+        {/* --- UPDATE: The LOGIN button has been removed --- */}
+        <TouchableOpacity onPress={onProfilePress}>
           <Image 
             source={{ uri: 'https://placehold.co/100x100/E0E0E0/333?text= ' }} 
             style={styles.avatar} 

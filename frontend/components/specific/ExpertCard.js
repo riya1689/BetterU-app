@@ -29,17 +29,18 @@ const styles = (theme) => StyleSheet.create({
     height: width * 0.5,
     borderRadius: 15,
     marginRight: 15,
-    overflow: 'hidden',
+    overflow: 'visible',// Allow shadow to be visible
     backgroundColor: theme.card, // Add a background for the shadow to appear
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2, },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
   },
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: 15, // Match container's border radius
   },
   infoOverlay: {
     position: 'absolute',
@@ -48,6 +49,8 @@ const styles = (theme) => StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     padding: 10,
+    borderBottomLeftRadius: 15,//change
+    borderBottomRightRadius: 15,//change
   },
   name: {
     color: 'white',
