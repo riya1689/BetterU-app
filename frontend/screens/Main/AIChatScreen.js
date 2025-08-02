@@ -28,7 +28,8 @@ const AIChatScreen = () => {
       return;
     }
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
+      //changed here in MediaTypeOption
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
     if (!pickerResult.canceled) {
