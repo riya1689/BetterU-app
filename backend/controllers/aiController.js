@@ -1,29 +1,43 @@
-const { getAIResponse } = require('../services/geminiService');
+// backend/controllers/aiController.js
 
-// @desc    Handle a chat message from the user
-// @route   POST /api/ai/chat
-// @access  Public (for now, will be protected later)
-const chatWithAI = async (req, res) => {
-  const { userMessage, history } = req.body;
+// --- UPDATE: Import both functions from the service ---
+const { getAIResponse, analyzeImageWithAI } = require('../services/geminiService');
 
-  // Basic validation
-  if (!userMessage || !Array.isArray(history)) {
-    return res.status(400).json({ message: 'Invalid request body' });
-  }
+// This controller remains the same
+const chatController = async (req, res) => {
+    try {
+        const { userMessage, history } = req.body;
+        if (!userMessage) {
+            return res.status(400).json({ error: 'userMessage is required' });
+        }
+        const reply = await getAIResponse(userMessage, history || []);
+        res.json({ reply });
+    } catch (error) {
+        console.error('Error in chatController:', error);
+        res.status(500).json({ error: 'Failed to get AI response' });
+    }
+};
 
-  try {
-    // Get the AI's response from our Gemini service
-    const aiResponse = await getAIResponse(userMessage, history);
+// --- UPDATE: This controller now calls the AI for analysis ---
+const analyzeReportController = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No report image was uploaded.' });
+        }
+        
+        // Call the new service function with the uploaded file
+        const reply = await analyzeImageWithAI(req.file);
 
-    // Send the response back to the frontend
-    res.json({ reply: aiResponse });
+        // Send the AI's analysis back to the frontend
+        res.json({ reply });
 
-  } catch (error) {
-    console.error('Error in AI chat controller:', error);
-    res.status(500).send('Server error');
-  }
+    } catch (error) {
+        console.error('Error in analyzeReportController:', error);
+        res.status(500).json({ error: 'Failed to process image.' });
+    }
 };
 
 module.exports = {
-  chatWithAI,
+    chatController,
+    analyzeReportController
 };
