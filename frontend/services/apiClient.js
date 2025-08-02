@@ -1,21 +1,30 @@
-// import axios from 'axios';
-
-// // Create an axios instance with the base URL of your live backend
-// const apiClient = axios.create({
-//   baseURL: 'https://betteru-backend.onrender.com', // Your live backend URL
-// });
-
-// export default apiClient;
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Get the backend URL from an environment variable.
-// This is the standard way to configure URLs in Expo web builds.
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
+// Your live backend URL
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://betteru-backend.onrender.com';
 
 const apiClient = axios.create({
   baseURL: API_URL,
 });
 
-console.log('API client configured for URL:', API_URL); // This helps with debugging
+// This interceptor adds the auth token to every API request
+apiClient.interceptors.request.use(
+  async (config) => {
+    // Get the token from storage
+    const token = await AsyncStorage.getItem('userToken'); // Make sure 'userToken' is the key you use when saving the token at login
+    
+    // If the token exists, add it to the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+console.log('API client configured with auth interceptor for URL:', API_URL);
 
 export default apiClient;

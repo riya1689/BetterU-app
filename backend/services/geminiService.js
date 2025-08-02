@@ -47,30 +47,36 @@ const getAIResponse = async (userMessage, chatHistory) => {
 };
 
 
-// --- NEW FUNCTION for image analysis ---
-const analyzeImageWithAI = async (imageFile, textPrompt) => {
+// backend/services/geminiService.js
+
+// --- NEW, IMPROVED FUNCTION for image analysis ---
+const analyzeImageWithAI = async (imageFile) => {
     try {
-        // Use the Gemini 1.5 Flash model, which is multimodal
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-        // This is the specific instruction we give the AI for how to analyze the report.
+        // --- THIS IS THE NEW, MORE DETAILED PROMPT ---
         const analysisPrompt = `
-        You are an AI medical report analyzer. Analyze the following medical document and extract information clearly and concisely. The user is a patient, so use simple language. Structure your response in Markdown format with the following sections:
+        You are an expert AI assistant specializing in interpreting handwritten medical prescriptions for patients. Your tone should be clear, helpful, and empathetic. Analyze the provided image and structure your response in Markdown with the following sections:
 
-        ### 📋 Report Summary
-        Briefly describe the main points of the report.
-        
-        ### 🧪 Tests Prescribed
-        List all diagnostic tests mentioned (e.g., "Blood Test," "X-Ray"). If none are mentioned, state "No tests were prescribed in this report."
-        
-        ### 💊 Medications
-        List all prescribed medications, including dosage if available (e.g., "Paracetamol 500mg"). If none are mentioned, state "No medications were prescribed in this report."
-        
-        ### 🩺 Doctor's Advice
-        Summarize any other advice, notes, or follow-up instructions from the doctor.
+        ### 🩺 Doctor & Patient Details
+        Extract the Doctor's Name, Specialty, Hospital, Date, Patient's Name, and Age. If any detail is not found, state "Not specified".
+
+        ### 💊 Medications Prescribed
+        List each medication. For each one:
+        1.  **Identify the Brand Name** as written.
+        2.  **Guess the Generic Name** in parentheses (e.g., "Tab Rivalt (likely Rivotril/Clonazepam)").
+        3.  **State the Dosage** (e.g., "2mg").
+        4.  **Interpret the Frequency/Instructions.** If the handwriting is unclear, state your best interpretation and note the uncertainty (e.g., "Instructions appear to be '1 tablet at night'").
+
+        ### 📝 General Interpretation
+        In simple terms, provide a brief, high-level summary of what the prescription might be for based on the combination of drugs (e.g., "This combination of medications is often used to manage conditions related to mood, anxiety, and sleep.").
+
+        ### ⚠️ Important Note
+        **CRITICALLY IMPORTANT:** You must include the following disclaimer at the end: "This analysis is for informational purposes only and is not a substitute for professional medical advice. Please consult your doctor or a pharmacist for any questions about your prescription."
+
+        If the image provided is not a medical report or prescription, you MUST reply with only this message: "The provided image does not appear to be a medical document. Please upload a valid prescription or report for analysis."
         `;
 
-        // Convert the image buffer from Multer into the format Gemini needs
         const imagePart = {
             inlineData: {
                 data: imageFile.buffer.toString("base64"),
@@ -87,6 +93,9 @@ const analyzeImageWithAI = async (imageFile, textPrompt) => {
         return 'I had trouble reading the report. Please make sure the image is clear and try uploading it again.';
     }
 };
+
+// Make sure the rest of your geminiService.js file (getAIResponse, exports, etc.) remains the same.
+// You are ONLY replacing the analyzeImageWithAI function.
 
 // --- UPDATE: Export both functions ---
 module.exports = {
