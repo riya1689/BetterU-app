@@ -1,26 +1,87 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert } from 'react-native';
 import AuthGuard from '../../components/specific/AuthGuard';
 import { useTheme } from '../../store/ThemeContext';
 import apiClient from '../../services/apiClient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import Markdown from 'react-native-markdown-display'; // We'll use this to render the AI's formatted response
+import Markdown from 'react-native-markdown-display';
+import Voice from '@react-native-voice/voice';
+import { Audio } from 'expo-av';
 
 const AIChatScreen = () => {
   const [messages, setMessages] = useState([
     {
       id: '1',
-      text: 'Hello! I am BetterU\'s AI assistant. Feel free to share what\'s on your mind. You can also upload a medical report for analysis using the + icon.',
+      text: "Hello! I am BetterU's AI assistant. How can I help you today? You can type, upload a report, or use the microphone to talk.",
       sender: 'ai',
     },
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+
   const { theme } = useTheme();
   const flatListRef = useRef();
 
+  // useEffect to set up and clean up voice listeners
+  useEffect(() => {
+    const onSpeechStart = (e) => setIsListening(true);
+    const onSpeechEnd = (e) => setIsListening(false);
+    const onSpeechError = (e) => {
+      setIsListening(false);
+      Alert.alert('Voice Error', e.error?.message || 'Something went wrong.');
+    };
+    const onSpeechResults = (e) => {
+      if (e.value && e.value.length > 0) {
+        setInputText(e.value[0]);
+      }
+    };
+
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechError = onSpeechError;
+    Voice.onSpeechResults = onSpeechResults;
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+  // Function to request permission and start listening
+  const startListening = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Microphone access is required for the voice feature.');
+        return;
+      }
+      await Voice.start('en-US');
+    } catch (e) {
+      console.error('Error starting voice recognition:', e);
+    }
+  };
+
+  // Function to stop listening
+  const stopListening = async () => {
+    try {
+      await Voice.stop();
+    } catch (e) {
+      console.error('Error stopping voice recognition:', e);
+    }
+  };
+
+  // Main handler for the voice button
+  const handleVoiceButtonPress = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
+  // This function remains for the '+' icon
   const handleUpload = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -28,8 +89,7 @@ const AIChatScreen = () => {
       return;
     }
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
-      //changed here in MediaTypeOption
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Corrected to non-deprecated version
       quality: 1,
     });
     if (!pickerResult.canceled) {
@@ -37,20 +97,13 @@ const AIChatScreen = () => {
     }
   };
 
+  // This function sends text or images
   const handleSend = async () => {
     if ((inputText.trim() === '' && !selectedImage) || isLoading) return;
-
     const userMessageText = inputText;
     const userImageUri = selectedImage;
-
-    const userMessage = {
-      id: Date.now().toString(),
-      text: userMessageText,
-      sender: 'user',
-      imageUri: userImageUri, // Include image URI for display
-    };
+    const userMessage = { id: Date.now().toString(), text: userMessageText, sender: 'user', imageUri: userImageUri };
     
-    // Immediately update UI
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setSelectedImage(null);
@@ -58,55 +111,22 @@ const AIChatScreen = () => {
 
     try {
       let aiReplyText;
-
-      // --- LOGIC TO DECIDE WHICH API TO CALL ---
       if (userImageUri) {
-        // --- IMAGE UPLOAD FLOW ---
         const formData = new FormData();
-        formData.append('reportImage', {
-          uri: userImageUri,
-          name: `report-${Date.now()}.jpg`,
-          type: 'image/jpeg',
-        });
-        
-        // You can also send the text along with the image if needed
+        formData.append('reportImage', { uri: userImageUri, name: `report-${Date.now()}.jpg`, type: 'image/jpeg' });
         formData.append('text', userMessageText);
-
-        const response = await apiClient.post('/api/ai/analyze-report', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await apiClient.post('/api/ai/analyze-report', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         aiReplyText = response.data.reply;
-
       } else {
-        // --- TEXT-ONLY CHAT FLOW ---
-        const history = [...messages, userMessage].map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.text }],
-        }));
-
-        const response = await apiClient.post('/api/ai/chat', {
-          userMessage: userMessageText,
-          history: history,
-        });
+        const history = [...messages, userMessage].map(msg => ({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] }));
+        const response = await apiClient.post('/api/ai/chat', { userMessage: userMessageText, history: history });
         aiReplyText = response.data.reply;
       }
-
-      const aiReply = {
-        id: Date.now().toString() + 'ai',
-        text: aiReplyText,
-        sender: 'ai',
-      };
+      const aiReply = { id: Date.now().toString() + 'ai', text: aiReplyText, sender: 'ai' };
       setMessages(prev => [...prev, aiReply]);
-
     } catch (error) {
       console.error('Failed to get AI response:', error.response?.data || error.message);
-      const errorReply = {
-        id: Date.now().toString() + 'err',
-        text: 'Sorry, something went wrong. Please try again.',
-        sender: 'ai',
-      };
+      const errorReply = { id: Date.now().toString() + 'err', text: 'Sorry, something went wrong. Please try again.', sender: 'ai' };
       setMessages(prev => [...prev, errorReply]);
     } finally {
       setIsLoading(false);
@@ -127,15 +147,8 @@ const AIChatScreen = () => {
           data={messages}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
-            <View style={[
-              themedStyles.messageBubble,
-              item.sender === 'user' ? [themedStyles.userBubble, { backgroundColor: theme.primary }] : [themedStyles.aiBubble, { backgroundColor: theme.card }]
-            ]}>
-              {/* --- NEW: Show image if it exists on the message --- */}
-              {item.imageUri && (
-                <Image source={{ uri: item.imageUri }} style={themedStyles.messageImage} />
-              )}
-              {/* Use Markdown to render AI responses */}
+            <View style={[ themedStyles.messageBubble, item.sender === 'user' ? themedStyles.userBubble : themedStyles.aiBubble ]}>
+              {item.imageUri && <Image source={{ uri: item.imageUri }} style={themedStyles.messageImage} />}
               {item.sender === 'ai' ? (
                 <Markdown style={{body: {color: theme.text, fontSize: 16}}}>{item.text}</Markdown>
               ) : (
@@ -144,7 +157,7 @@ const AIChatScreen = () => {
             </View>
           )}
           style={themedStyles.chatContainer}
-          onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
         {isLoading && <ActivityIndicator style={{ marginVertical: 10 }} color={theme.primary} />}
         
@@ -158,7 +171,7 @@ const AIChatScreen = () => {
         )}
 
         <View style={[themedStyles.inputContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <TouchableOpacity style={themedStyles.uploadButton} onPress={handleUpload} disabled={isLoading}>
+          <TouchableOpacity style={themedStyles.iconButton} onPress={handleUpload} disabled={isLoading}>
             <Ionicons name="add-circle-outline" size={28} color={theme.primary} />
           </TouchableOpacity>
           <TextInput
@@ -169,9 +182,16 @@ const AIChatScreen = () => {
             placeholderTextColor={theme.secondaryText}
             editable={!isLoading}
           />
-          <TouchableOpacity style={[themedStyles.sendButton, { backgroundColor: theme.primary }]} onPress={handleSend} disabled={isLoading}>
-            <Text style={themedStyles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
+          
+          {inputText.trim().length > 0 ? (
+            <TouchableOpacity style={themedStyles.iconButton} onPress={handleSend} disabled={isLoading}>
+              <Ionicons name="arrow-up-circle" size={32} color={theme.primary} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={themedStyles.iconButton} onPress={handleVoiceButtonPress}>
+              <Ionicons name="mic-outline" size={28} color={isListening ? (theme.accent || 'red') : theme.primary} />
+            </TouchableOpacity>
+          )}
         </View>
       </KeyboardAvoidingView>
     </AuthGuard>
@@ -182,24 +202,16 @@ const styles = (theme) => StyleSheet.create({
   container: { flex: 1 },
   chatContainer: { flex: 1, padding: 10 },
   messageBubble: { maxWidth: '80%', padding: 15, borderRadius: 20, marginBottom: 10 },
-  userBubble: { alignSelf: 'flex-end', borderBottomRightRadius: 5 },
-  aiBubble: { alignSelf: 'flex-start', borderBottomLeftRadius: 5 },
+  userBubble: { alignSelf: 'flex-end', borderBottomRightRadius: 5, backgroundColor: theme.primary },
+  aiBubble: { alignSelf: 'flex-start', borderBottomLeftRadius: 5, backgroundColor: theme.card },
   userText: { color: '#ffffff', fontSize: 16 },
-  inputContainer: { flexDirection: 'row', padding: 10, borderTopWidth: 1, alignItems: 'center' },
-  uploadButton: { padding: 5, marginRight: 5 },
-  input: { flex: 1, borderRadius: 25, paddingHorizontal: 20, paddingVertical: 12, fontSize: 16, marginRight: 10 },
-  sendButton: { paddingHorizontal: 20, paddingVertical: 12, justifyContent: 'center', borderRadius: 25 },
-  sendButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  inputContainer: { flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 8, borderTopWidth: 1, alignItems: 'center' },
+  input: { flex: 1, borderRadius: 25, paddingHorizontal: 20, paddingVertical: 12, fontSize: 16, marginHorizontal: 10 },
   previewContainer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, paddingTop: 10, backgroundColor: theme.card },
   previewImage: { width: 60, height: 60, borderRadius: 10, marginRight: 10 },
   removeImageButton: { position: 'absolute', top: 5, left: 60 },
-  // --- NEW STYLE for images inside the chat message ---
-  messageImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 15,
-    marginBottom: 10,
-  },
+  messageImage: { width: 200, height: 200, borderRadius: 15, marginBottom: 10 },
+  iconButton: { padding: 5, },
 });
 
 export default AIChatScreen;
