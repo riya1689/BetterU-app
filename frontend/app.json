@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
@@ -16,12 +16,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.frontend",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "RECORD_AUDIO"
-      ],
-      "package": "com.anonymous.frontend"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +32,20 @@
         {
           "microphonePermission": "Allow BetterU to access your microphone for voice input.",
           "speechRecognitionPermission": "Allow BetterU to use speech recognition."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "extraGradleProperties": {
+              "android.useAndroidX": true,
+              "android.enableJetifier": true
+            }
+          }
         }
       ]
     ]
