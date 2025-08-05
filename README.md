@@ -4,6 +4,10 @@
 
 **BetterU** is an AI-powered mental health counseling application designed to bridge the gap between individuals and professional mental health support. Combining expert counseling services with intelligent technology, BetterU ensures users receive timely help, personalized support, and secure access to tools that enhance emotional well-being.
 
+## Live Demo with Mobile Version 
+Check out the live site: [https://better-u-mobile-app.vercel.app/](https://better-u-mobile-app.vercel.app/)
+---
+
 ## Objectives
 
 - Simplify the process of booking counseling sessions with licensed psychologists.
