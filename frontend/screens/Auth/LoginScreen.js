@@ -1,130 +1,169 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image } from 'react-native';
 import { useAuth } from '../../store/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../store/ThemeContext'; // Import useTheme
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { login } = useAuth();
+  const { theme } = useTheme(); // Get the theme object
 
   const handleLogin = () => {
-    // --- CHANGE: Pass the navigation object to the login function ---
     login(email, password, navigation);
   };
 
+  // Create a dynamic stylesheet that uses the theme
+  const styles = getStyles(theme);
+
   return (
-    <LinearGradient
-      colors={['#c3aed6', '#e2d4f0']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.content}>
-          <Text style={styles.title}>Welcome,</Text>
-          <Text style={styles.subtitle}>Glad to see you!</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
+      
+      <View style={styles.content}>
+        {/* --- ADDED: Header Image --- */}
+        <Image
+          source={require('../../assets/images/BetterU-login-removebg-preview.png')}
+          style={styles.headerImage}
+        />
 
+        <Text style={styles.title}>Welcome Back!</Text>
+        <Text style={styles.subtitle}>Glad to see you again!</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email Address"
+          placeholderTextColor={theme.secondaryText}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        
+        <View style={styles.passwordContainer}>
           <TextInput
-            style={styles.input}
-            placeholder="Email Address"
-            placeholderTextColor="#6c5b7b"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
+            style={styles.passwordInput}
+            placeholder="Password"
+            placeholderTextColor={theme.secondaryText}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!isPasswordVisible}
           />
-          
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              placeholderTextColor="#6c5b7b"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!isPasswordVisible}
+          <TouchableOpacity 
+            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            style={styles.eyeIcon}
+          >
+            <Ionicons 
+              name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
+              size={24} 
+              color={theme.text} 
             />
-            <TouchableOpacity 
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              style={styles.eyeIcon}
-            >
-              <Ionicons 
-                name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
-                size={24} 
-                color="#3a3242" 
-              />
-            </TouchableOpacity>
-          </View>
-          
-          <TouchableOpacity>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.dividerContainer}>
-             <View style={styles.dividerLine} />
-             <Text style={styles.dividerText}>Or Login with</Text>
-             <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity style={styles.googleButton}>
-              <Ionicons name="logo-google" size={24} color="#3a3242" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-            <Text style={styles.signupText}>
-              Don't have an account? <Text style={{ fontWeight: 'bold' }}>Sign Up Now</Text>
-            </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+        
+        <TouchableOpacity>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Login</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <Text style={styles.signupText}>
+            Don't have an account? <Text style={{ fontWeight: 'bold' }}>Sign Up Now</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 30 },
-  title: { fontSize: 40, fontWeight: 'bold', color: '#3a3242', marginBottom: 5 },
-  subtitle: { fontSize: 24, color: '#4a4252', marginBottom: 40 },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 10,
-    fontSize: 16,
-    color: '#3a3242',
-    marginBottom: 15,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  passwordInput: {
+// --- UPDATED: Styles are now a function that uses the theme ---
+const getStyles = (theme) => StyleSheet.create({
+  container: { 
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    fontSize: 16,
-    color: '#3a3242',
+    backgroundColor: theme.background,
   },
-  eyeIcon: {
-    padding: 15,
+  content: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    paddingHorizontal: 30 
   },
-  forgotPassword: { textAlign: 'right', color: '#3a3242', marginBottom: 20 },
-  loginButton: { backgroundColor: '#ffffff', paddingVertical: 18, borderRadius: 10, alignItems: 'center', marginBottom: 20 },
-  loginButtonText: { color: '#3a3242', fontSize: 18, fontWeight: 'bold' },
-  dividerContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#a39da9' },
-  dividerText: { marginHorizontal: 10, color: '#4a4252' },
-  googleButton: { backgroundColor: '#ffffff', padding: 15, borderRadius: 10, alignItems: 'center', marginBottom: 30 },
-  signupText: { textAlign: 'center', color: '#3a3242', fontSize: 16 },
+  headerImage: {
+    width: 280,
+    height: 220,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginBottom: 30,
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: 'bold', 
+    color: theme.text, 
+    textAlign: 'center',
+  },
+  subtitle: { 
+    fontSize: 18, 
+    color: theme.secondaryText, 
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  input: { 
+    backgroundColor: theme.card,
+    paddingHorizontal: 20, 
+    paddingVertical: 15, 
+    borderRadius: 10, 
+    fontSize: 16, 
+    color: theme.text, 
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  passwordContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: theme.card, 
+    borderRadius: 10, 
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  passwordInput: { 
+    flex: 1, 
+    paddingHorizontal: 20, 
+    paddingVertical: 15, 
+    fontSize: 16, 
+    color: theme.text 
+  },
+  eyeIcon: { 
+    padding: 15 
+  },
+  forgotPassword: { 
+    textAlign: 'right', 
+    color: theme.primary, 
+    marginBottom: 20,
+    fontWeight: '600',
+  },
+  loginButton: { 
+    backgroundColor: theme.primary, 
+    paddingVertical: 18, 
+    borderRadius: 10, 
+    alignItems: 'center', 
+    marginBottom: 20 
+  },
+  loginButtonText: { 
+    color: theme.card, 
+    fontSize: 18, 
+    fontWeight: 'bold' 
+  },
+  signupText: { 
+    textAlign: 'center', 
+    color: theme.secondaryText, 
+    fontSize: 16 
+  },
 });
 
 export default LoginScreen;
