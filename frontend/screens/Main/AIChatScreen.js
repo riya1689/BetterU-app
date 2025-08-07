@@ -6,8 +6,12 @@ import apiClient from '../../services/apiClient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Markdown from 'react-native-markdown-display';
-import Voice from '@react-native-voice/voice';
+//import Voice from '@react-native-voice/voice';
 import { Audio } from 'expo-av';
+let Voice;
+if (Platform.OS !== 'web') {
+  Voice = require('@react-native-voice/voice').default;
+}
 
 const AIChatScreen = () => {
   const [messages, setMessages] = useState([
@@ -26,7 +30,32 @@ const AIChatScreen = () => {
   const flatListRef = useRef();
 
   // useEffect to set up and clean up voice listeners
+  // useEffect(() => {
+  //   const onSpeechStart = (e) => setIsListening(true);
+  //   const onSpeechEnd = (e) => setIsListening(false);
+  //   const onSpeechError = (e) => {
+  //     setIsListening(false);
+  //     Alert.alert('Voice Error', e.error?.message || 'Something went wrong.');
+  //   };
+  //   const onSpeechResults = (e) => {
+  //     if (e.value && e.value.length > 0) {
+  //       setInputText(e.value[0]);
+  //     }
+  //   };
+
+  //   Voice.onSpeechStart = onSpeechStart;
+  //   Voice.onSpeechEnd = onSpeechEnd;
+  //   Voice.onSpeechError = onSpeechError;
+  //   Voice.onSpeechResults = onSpeechResults;
+
+  //   return () => {
+  //     Voice.destroy().then(Voice.removeAllListeners);
+  //   };
+  // }, []);
+
   useEffect(() => {
+  // ADD THIS WRAPPER
+  if (Platform.OS !== 'web') {
     const onSpeechStart = (e) => setIsListening(true);
     const onSpeechEnd = (e) => setIsListening(false);
     const onSpeechError = (e) => {
@@ -47,30 +76,63 @@ const AIChatScreen = () => {
     return () => {
       Voice.destroy().then(Voice.removeAllListeners);
     };
-  }, []);
+  }
+}, []);
+
 
   // Function to request permission and start listening
-  const startListening = async () => {
-    try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Microphone access is required for the voice feature.');
-        return;
-      }
-      await Voice.start('en-US');
-    } catch (e) {
-      console.error('Error starting voice recognition:', e);
-    }
-  };
+  // const startListening = async () => {
+  //   try {
+  //     const { status } = await Audio.requestPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       Alert.alert('Permission Denied', 'Microphone access is required for the voice feature.');
+  //       return;
+  //     }
+  //     await Voice.start('en-US');
+  //   } catch (e) {
+  //     console.error('Error starting voice recognition:', e);
+  //   }
+  // };
 
-  // Function to stop listening
-  const stopListening = async () => {
-    try {
-      await Voice.stop();
-    } catch (e) {
-      console.error('Error stopping voice recognition:', e);
+  // // Function to stop listening
+  // const stopListening = async () => {
+  //   try {
+  //     await Voice.stop();
+  //   } catch (e) {
+  //     console.error('Error stopping voice recognition:', e);
+  //   }
+  // };
+
+  
+  // Function to request permission and start listening
+const startListening = async () => {
+  // Add this check at the top
+  if (Platform.OS === 'web') return;
+
+  try {
+    const { status } = await Audio.requestPermissionsAsync();
+    // ... rest of the function is the same
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Microphone access is required for the voice feature.');
+      return;
     }
-  };
+    await Voice.start('en-US');
+  } catch (e) {
+    console.error('Error starting voice recognition:', e);
+  }
+};
+
+// Function to stop listening
+const stopListening = async () => {
+  // Add this check at the top
+  if (Platform.OS === 'web') return;
+
+  try {
+    await Voice.stop();
+  } catch (e) {
+    console.error('Error stopping voice recognition:', e);
+  }
+};
 
   // Main handler for the voice button
   const handleVoiceButtonPress = () => {
@@ -183,7 +245,7 @@ const AIChatScreen = () => {
             editable={!isLoading}
           />
           
-          {inputText.trim().length > 0 ? (
+          {/* {inputText.trim().length > 0 ? (
             <TouchableOpacity style={themedStyles.iconButton} onPress={handleSend} disabled={isLoading}>
               <Ionicons name="arrow-up-circle" size={32} color={theme.primary} />
             </TouchableOpacity>
@@ -191,7 +253,26 @@ const AIChatScreen = () => {
             <TouchableOpacity style={themedStyles.iconButton} onPress={handleVoiceButtonPress}>
               <Ionicons name="mic-outline" size={28} color={isListening ? (theme.accent || 'red') : theme.primary} />
             </TouchableOpacity>
-          )}
+          )} */}
+
+          {inputText.trim().length > 0 ? (
+        <TouchableOpacity style={themedStyles.iconButton} onPress={handleSend} disabled={isLoading}>
+           <Ionicons name="arrow-up-circle" size={32} color={theme.primary} />
+        </TouchableOpacity>
+        ) : (
+  // THIS IS THE REPLACEMENT LOGIC
+         Platform.OS === 'web' ? (
+    // On web, show a disabled "mic-off" button
+    <TouchableOpacity style={themedStyles.iconButton} disabled={true}>
+      <Ionicons name="mic-off-outline" size={28} color={theme.secondaryText} />
+    </TouchableOpacity>
+      ) : (
+    // On mobile, show the original, functional button
+    <TouchableOpacity style={themedStyles.iconButton} onPress={handleVoiceButtonPress}>
+      <Ionicons name="mic-outline" size={28} color={isListening ? (theme.accent || 'red') : theme.primary} />
+    </TouchableOpacity>
+          )
+      )}
         </View>
       </KeyboardAvoidingView>
     </AuthGuard>
