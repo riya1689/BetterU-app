@@ -6,11 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 const PaymentScreen = ({ navigation, route }) => {
   const { theme } = useTheme();
-  // const { paymentUrl } = route.params; // In a real app, the backend would provide this URL
 
-  // For demonstration, we will use a placeholder URL.
-  // Replace this with the actual AmarPay URL when you integrate the backend.
-  const MOCK_PAYMENT_URL = 'https://aamarpay.com/';
+  // REPLACED: This now gets the real payment URL from the navigation parameters
+  const { paymentUrl } = route.params;
 
   const themedStyles = styles(theme);
 
@@ -22,14 +20,14 @@ const PaymentScreen = ({ navigation, route }) => {
           <Ionicons name="arrow-back" size={28} color={theme.text} />
         </TouchableOpacity>
         <Text style={[themedStyles.headerTitle, { color: theme.text }]}>Complete Payment</Text>
-        <View style={{ width: 28 }} /> 
+        <View style={{ width: 28 }} />
       </View>
 
-      {/* --- WebView for AmarPay --- */}
-      <WebView 
-        source={{ uri: MOCK_PAYMENT_URL }} 
+      {/* --- WebView for SSL Commerz --- */}
+      <WebView
+        // REPLACED: The source now uses the real paymentUrl
+        source={{ uri: paymentUrl }}
         style={{ flex: 1 }}
-        // This is important to show a loading indicator
         startInLoadingState={true}
       />
     </SafeAreaView>

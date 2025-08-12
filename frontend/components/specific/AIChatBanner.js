@@ -31,7 +31,7 @@ const AIChatBanner = () => {
       
       <Image
         // IMPORTANT: Please replace this with the correct path to your robot image
-        source={require('../../assets/images/BetterU_AI.png')} // <-- Replace with your image path
+        source={require('../../assets/images/BetterU_AI-removebg-preview.png')} // <-- Replace with your image path
         style={themedStyles.image}
       />
     </TouchableOpacity>
