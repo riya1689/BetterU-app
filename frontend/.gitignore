@@ -34,5 +34,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+# Android native build output
+/android/build/
+/android/app/build/
 
 app-example

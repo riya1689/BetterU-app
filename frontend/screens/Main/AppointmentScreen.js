@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Constants from 'expo-constants';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, ScrollView, Animated, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useTheme } from '../../store/ThemeContext';
 // UNCOMMENTED: Access the user object from the AuthContext
 import { useAuth } from '../../store/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 
-const API_BASE_URL = 'http://192.168.0.101:5000/api';
-//const API_BASE_URL = 'https://192.168.1.5:5000/api';
+//const API_BASE_URL = 'http://192.168.0.101:5000/api';
+//const API_BASE_URL = 'https://betteru-backend.onrender.com/api';
+const API_BASE_URL = Constants.expoConfig?.extra?.api_url ?? process.env.EXPO_PUBLIC_API_URL;
 
 const getNextSevenDays = () => {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

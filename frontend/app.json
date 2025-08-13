@@ -8,7 +8,17 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "extra": {
+      "api_url": "https://betteru-backend.onrender.com/api",
+      "eas": {
+        "projectId": "e56abc1f-3bfa-46a2-9d45-73a907470000"
+      }
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -20,7 +30,8 @@
       "package": "com.anonymous.frontend",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
