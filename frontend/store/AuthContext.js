@@ -1,64 +1,97 @@
-import React, { createContext, useState, useContext } from 'react';
-import apiClient from '../services/apiClient';
-// --- FIX: Import AsyncStorage ---
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiClient from '../services/apiClient'; // Ensure this path is correct
+import { Alert } from 'react-native';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const signup = async (name, email, password, navigation) => {
-    setIsLoading(true);
-    try {
-      // Signup logic remains the same...
-      const response = await apiClient.post('/api/auth/register', { name, email, password });
-      const { user: userData } = response.data;
-      setUser(userData);
-      navigation.navigate('Success', { message: 'Signup Successful!', nextScreen: 'Login' });
-    } catch (error) {
-      console.error('Signup failed:', error.response?.data?.message || error.message);
-      alert('Signup Failed: ' + (error.response?.data?.message || 'Please try again.'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    const loadUserFromStorage = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('userToken');
+        if (storedToken) {
+          setToken(storedToken);
+        }
+      } catch (e) {
+        console.error("Failed to load user token from storage", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserFromStorage();
+  }, []);
 
   const login = async (email, password, navigation) => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/api/auth/login', { email, password });
-      
-      // --- FIX: Destructure both the user AND the token from the response ---
-      const { user: userData, token } = response.data;
-      
-      // --- FIX: Save the token to AsyncStorage ---
-      await AsyncStorage.setItem('userToken', token);
-      
+      // --- FIX: Removed the extra '/api' prefix ---
+      const response = await apiClient.post('/auth/login', { email, password });
+      const { user: userData, token: userToken } = response.data;
+
       setUser(userData);
+      setToken(userToken);
+      await AsyncStorage.setItem('userToken', userToken);
 
       navigation.navigate('Success', { message: 'Login Successful!', nextScreen: 'MainTabs' });
+
     } catch (error) {
-      console.error('Login failed:', error.response?.data?.message || error.message);
-      alert('Login Failed: ' + (error.response?.data?.message || 'Invalid credentials.'));
+      console.error('Login Error:', JSON.stringify(error.response || error, null, 2));
+      
+      let errorMessage = 'Login Failed. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (!error.response) {
+        errorMessage = 'Cannot connect to the server. Please check your internet connection.';
+      }
+      
+      Alert.alert('Login Failed', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = async (navigation) => { // --- FIX: Make logout async ---
+  const signup = async (fullName, email, password, navigation) => {
     setIsLoading(true);
-    // --- FIX: Remove the token from storage on logout ---
-    await AsyncStorage.removeItem('userToken');
+    try {
+      // --- FIX: Changed parameter to 'fullName' and sending it as 'name' to the API ---
+      await apiClient.post('/auth/register', { name: fullName, email, password });
+
+      navigation.navigate('Success', { message: 'Signup Successful!', nextScreen: 'Login' });
+
+    } catch (error) {
+      console.error('Signup Error:', JSON.stringify(error.response || error, null, 2));
+
+      let errorMessage = 'Signup Failed. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (!error.response) {
+        errorMessage = 'Cannot connect to the server. Please check your internet connection.';
+      }
+      
+      Alert.alert('Signup Failed', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async (navigation) => {
+    setIsLoading(true);
     setUser(null);
+    setToken(null);
+    await AsyncStorage.removeItem('userToken');
     setIsLoading(false);
     
-    navigation.navigate('Login'); // Navigate directly to Login after logout
+    navigation.navigate('Login');
   };
-  
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
