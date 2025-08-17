@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'doctor'], // Restricts the role to one of these values
+    default: 'user'                  // Sets 'user' as the default for new signups
+  }
 }, {
   timestamps: true,
 });

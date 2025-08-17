@@ -2,28 +2,37 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// --- UPDATED: The registerUser function now handles the 'role' ---
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  // Destructure 'role' from the request body
+  const { name, email, password, role } = req.body; 
   try {
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create a new user instance (hashing will happen automatically)
     user = new User({
       name,
       email,
       password,
+      role // <-- Assign the role from the request body here
     });
 
-    // Save the user to the database
     await user.save();
 
-    const payload = { user: { id: user.id } };
+    const payload = { user: { id: user.id, role: user.role } };
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5d' }, (err, token) => {
       if (err) throw err;
-      res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
+      res.status(201).json({ 
+        token, 
+        user: { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email, 
+          role: user.role
+        } 
+      });
     });
   } catch (error) {
     console.error(error.message);
@@ -33,7 +42,6 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    // --- RE-ADDED DEBUGGING LOGS ---
     console.log('--- Login attempt received ---');
     console.log('Email:', email);
     try {
@@ -56,10 +64,18 @@ const loginUser = async (req, res) => {
 
         console.log('DEBUG: Password comparison successful!');
         
-        const payload = { user: { id: user.id } };
+        const payload = { user: { id: user.id, role: user.role } };
         jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5d' }, (err, token) => {
             if (err) throw err;
-            res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+            res.json({ 
+              token, 
+              user: { 
+                id: user.id, 
+                name: user.name, 
+                email: user.email, 
+                role: user.role
+              } 
+            });
         });
     } catch (error) {
         console.error('SERVER ERROR:', error.message);

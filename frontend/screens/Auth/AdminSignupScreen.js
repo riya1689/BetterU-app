@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image } from 'react-native';
 import { useAuth } from '../../store/AuthContext';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../store/ThemeContext';
 
-const SignupScreen = ({ navigation }) => {
+const AdminSignupScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,14 +15,14 @@ const SignupScreen = ({ navigation }) => {
   const { signup } = useAuth();
   const { theme } = useTheme();
 
-  const handleUserSignup = () => {
+  const handleSignup = () => {
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
     const fullName = `${firstName} ${lastName}`;
     // We will update the signup function in AuthContext to accept a role
-    signup(fullName, email, password, 'user', navigation);
+    signup(fullName, email, password, 'admin', navigation);
   };
   
   const styles = getStyles(theme);
@@ -37,8 +37,8 @@ const SignupScreen = ({ navigation }) => {
           style={styles.headerImage}
         />
 
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>to get started now!</Text>
+        <Text style={styles.title}>Create Admin Account</Text>
+        <Text style={styles.subtitle}>Please fill out the details below</Text>
 
         <View style={styles.nameRow}>
           <TextInput
@@ -109,43 +109,13 @@ const SignupScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.signupButton} onPress={handleUserSignup}>
-          <Text style={styles.signupButtonText}>Sign Up</Text>
+        <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+          <Text style={styles.signupButtonText}>Create Admin Account</Text>
         </TouchableOpacity>
         
-        {/* --- NEW: "or" Separator --- */}
-        <View style={styles.separatorContainer}>
-            <View style={styles.line} />
-            <Text style={styles.separatorText}>or sign up as</Text>
-            <View style={styles.line} />
-        </View>
-
-        {/* --- NEW: Role-based Icon Signup --- */}
-        <View style={styles.roleLoginContainer}>
-            <TouchableOpacity 
-                style={styles.roleButton} 
-                onPress={() => navigation.navigate('AdminSignup')}
-            >
-                <View style={styles.roleIconContainer}>
-                    <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
-                </View>
-                <Text style={styles.roleText}>Admin</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-                style={styles.roleButton} 
-                onPress={() => navigation.navigate('DoctorSignup')}
-            >
-                <View style={styles.roleIconContainer}>
-                    <FontAwesome5 name="user-md" size={28} color={theme.primary} />
-                </View>
-                <Text style={styles.roleText}>Doctor</Text>
-            </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.loginText}>
-            Already have an account? <Text style={{ fontWeight: 'bold' }}>Login Now</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.goBackText}>
+            Not an Admin? <Text style={{ fontWeight: 'bold' }}>Go Back</Text>
           </Text>
         </TouchableOpacity>
       </View>
@@ -165,7 +135,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   headerImage: {
     width: 250,
-    height: 150, // Adjusted height
+    height: 180,
     resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 20,
@@ -180,7 +150,7 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 18, 
     color: theme.secondaryText,
     textAlign: 'center',
-    marginBottom: 20, // Adjusted margin
+    marginBottom: 30,
   },
   input: { 
     backgroundColor: theme.card,
@@ -225,65 +195,18 @@ const getStyles = (theme) => StyleSheet.create({
     borderRadius: 10, 
     alignItems: 'center', 
     marginTop: 10, 
+    marginBottom: 20 
   },
   signupButtonText: { 
     color: theme.card,
     fontSize: 18, 
     fontWeight: 'bold' 
   },
-  loginText: { 
+  goBackText: { 
     textAlign: 'center', 
     color: theme.secondaryText, 
     fontSize: 16 
   },
-  // --- NEW STYLES copied from LoginScreen ---
-  separatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20, // Adjusted margin
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: theme.border,
-  },
-  separatorText: {
-    marginHorizontal: 10,
-    color: theme.secondaryText,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  roleLoginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20, // Adjusted margin
-  },
-  roleButton: {
-    alignItems: 'center',
-    marginHorizontal: 25,
-  },
-  roleIconContainer: {
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.card,
-    borderWidth: 1,
-    borderColor: theme.border,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  roleText: {
-    color: theme.text,
-    fontSize: 14,
-    fontWeight: '600',
-  },
 });
 
-export default SignupScreen;
+export default AdminSignupScreen;
