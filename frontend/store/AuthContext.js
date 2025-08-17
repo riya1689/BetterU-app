@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       let nextScreen;
       if (userData.role === 'admin') {
         nextScreen = 'AdminPanel';
-      } else if (userData.role === 'expert') {
+      } else if (userData.role === 'doctor') {
         nextScreen = 'ExpertPanel';
       } else {
         nextScreen = 'MainTabs';
