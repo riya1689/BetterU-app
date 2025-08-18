@@ -20,13 +20,12 @@ const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find({ role: 'doctor' }).select('-password');
     res.json(doctors);
-  } catch (error){
+  } catch (error) { // --- FIX: Added the missing opening curly brace ---
     console.error(error.message);
     res.status(500).send('Server Error');
   }
 };
 
-// --- NEW FUNCTION ---
 // @desc    Delete a user by ID
 // @route   DELETE /api/admin/users/:id
 // @access  Private/Admin
@@ -35,7 +34,7 @@ const deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (user) {
-      await user.deleteOne(); // or user.remove() for older mongoose versions
+      await user.deleteOne();
       res.json({ message: 'User removed successfully' });
     } else {
       res.status(404).json({ message: 'User not found' });
@@ -45,11 +44,10 @@ const deleteUser = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-// --- END NEW FUNCTION ---
 
 
 module.exports = {
   getAllUsers,
   getAllDoctors,
-  deleteUser, // <-- Export the new function
+  deleteUser,
 };
