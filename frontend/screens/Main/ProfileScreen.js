@@ -19,15 +19,16 @@ const ProfileMenuItem = ({ icon, text, onPress, children, theme }) => (
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { user, logout } = useAuth();
-  const { isDarkMode, theme, toggleTheme } = useTheme(); // Get the theme object
+  // --- UPDATED: Get the 'role' from the AuthContext ---
+  const { user, logout, role } = useAuth(); 
+  const { isDarkMode, theme, toggleTheme } = useTheme();
   const [toastVisible, setToastVisible] = useState(false);
 
   const handleLockedFeature = () => {
     if (!user) {
       setToastVisible(true);
     } else {
-        alert('This feature is coming soon!');
+      alert('This feature is coming soon!');
     }
   };
 
@@ -39,7 +40,16 @@ const ProfileScreen = () => {
     logout(navigation);
   };
 
-  // Pass the theme to the styles
+  // --- NEW: Navigation handlers for the panels ---
+  const handleAdminPanelPress = () => {
+    navigation.navigate('AdminPanel');
+  };
+
+  const handleDoctorPanelPress = () => {
+    // Note: Make sure this name matches your AppNavigator.js
+    navigation.navigate('ExpertPanel'); 
+  };
+
   const themedStyles = styles(theme);
 
   return (
@@ -76,6 +86,27 @@ const ProfileScreen = () => {
 
         <ProfileMenuItem icon="bookmark-outline" text="Bookmarks" onPress={handleLockedFeature} theme={theme} />
         <ProfileMenuItem icon="analytics-outline" text="Your Analytics" onPress={handleLockedFeature} theme={theme} />
+        
+        {/* --- NEW: Conditional Admin Panel Link --- */}
+        {user && role === 'admin' && (
+            <ProfileMenuItem 
+                icon="shield-checkmark-outline" 
+                text="Admin Panel" 
+                onPress={handleAdminPanelPress} 
+                theme={theme} 
+            />
+        )}
+
+        {/* --- NEW: Conditional Doctor Panel Link --- */}
+        {user && role === 'doctor' && (
+            <ProfileMenuItem 
+                icon="medkit-outline" 
+                text="Doctor Panel" 
+                onPress={handleDoctorPanelPress} 
+                theme={theme} 
+            />
+        )}
+
         {user && (
             <ProfileMenuItem icon="log-out-outline" text="Logout" onPress={handleLogout} theme={theme} />
         )}
@@ -90,7 +121,6 @@ const ProfileScreen = () => {
   );
 };
 
-// --- IMPORTANT CHANGE: Convert styles to a function ---
 const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,

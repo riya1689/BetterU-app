@@ -1,31 +1,85 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { useTheme } from '../../store/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 
-const AdminPanelScreen = () => {
+const AdminPanelScreen = ({ navigation }) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Welcome to the Admin Panel</Text>
-      <Text style={styles.subtitle}>This is a placeholder screen.</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Admin Panel</Text>
+        <Text style={styles.subtitle}>Select an option to manage</Text>
+      </View>
+
+      <View style={styles.menuContainer}>
+        {/* Manage Users Card */}
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserList', { userType: 'user' })}
+        >
+          <Ionicons name="people-outline" size={32} color={theme.primary} />
+          <Text style={styles.menuItemText}>Manage Users</Text>
+        </TouchableOpacity>
+
+        {/* Manage Doctors Card */}
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserList', { userType: 'doctor' })}
+        >
+          <Ionicons name="medkit-outline" size={32} color={theme.primary} />
+          <Text style={styles.menuItemText}>Manage Doctors</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: theme.background,
+  },
+  header: {
+    padding: 30,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#1e3a8a',
+    color: theme.text,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
+    fontSize: 18,
+    color: theme.secondaryText,
     marginTop: 8,
+  },
+  menuContainer: {
+    padding: 20,
+  },
+  menuItem: {
+    backgroundColor: theme.card,
+    padding: 25,
+    borderRadius: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    // Shadow for Android
+    elevation: 3,
+  },
+  menuItemText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: theme.text,
+    marginLeft: 20,
   },
 });
 

@@ -7,6 +7,7 @@ const cors = require("cors");
 const { checkConnection } = require('./services/payment/sslcommerzService');
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORRECT: Apply middleware BEFORE defining routes
 app.use(cors()); // This should be one of the first
 app.use(express.json()); // To parse JSON request bodies
+app.use('/api/admin', adminRoutes);
 
 // Connect to MongoDB
 connectDB();

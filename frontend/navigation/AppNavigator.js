@@ -24,6 +24,7 @@ import ExpertPanelScreen from '../screens/Main/ExpertPanelScreen';
 import AdminSignupScreen from '../screens/Auth/AdminSignupScreen';
 import DoctorSignupScreen from '../screens/Auth/DoctorSignupScreen';
 
+import UserListScreen from '../screens/Main/UserListScreen';
 
 const Stack = createStackNavigator();
 
@@ -57,6 +58,8 @@ const AppNavigator = () => {
       <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
       {/* --- FIX: Corrected this to match the file we created --- */}
       <Stack.Screen name="ExpertPanel" component={ExpertPanelScreen} />
+
+      <Stack.Screen name="UserList" component={UserListScreen} />
 
     </Stack.Navigator>
   );
