@@ -116,15 +116,8 @@ const SignupScreen = ({ navigation }) => {
             <View style={styles.line} />
           </View>
 
+          {/* --- UPDATED: Admin icon is removed, container is centered --- */}
           <View style={styles.roleLoginContainer}>
-             <TouchableOpacity
-              style={styles.roleButton}
-              onPress={() => navigation.navigate('AdminSignup')}
-            >
-              <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
-              <Text style={styles.roleText}>Admin</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.roleButton}
               onPress={() => navigation.navigate('DoctorSignup')}
@@ -134,6 +127,7 @@ const SignupScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
+          {/* --- UPDATED: Login container style is adjusted --- */}
           <TouchableOpacity style={styles.loginContainer} onPress={() => navigation.navigate('Login')}>
             <Text style={styles.loginText}>
               Already have an account? <Text style={styles.loginLink}>Login</Text>
@@ -154,15 +148,15 @@ const getStyles = (theme) => StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: 24,
-        paddingVertical: 30,
+        paddingVertical: 20, // Reduced vertical padding
     },
     header: {
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: 25, // Reduced margin
     },
     headerImage: {
-        width: 150,
-        height: 150,
+        width: 140, // Slightly smaller image
+        height: 140,
         resizeMode: 'contain',
     },
     title: {
@@ -226,7 +220,7 @@ const getStyles = (theme) => StyleSheet.create({
     separatorContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 30,
+        marginVertical: 25, // Adjusted margin
     },
     line: {
         flex: 1,
@@ -240,12 +234,11 @@ const getStyles = (theme) => StyleSheet.create({
     },
     roleLoginContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'center', // This centers the single icon
         alignItems: 'center',
     },
     roleButton: {
         alignItems: 'center',
-        marginHorizontal: 30,
         padding: 10,
     },
     roleText: {
@@ -255,8 +248,9 @@ const getStyles = (theme) => StyleSheet.create({
         marginTop: 8,
     },
     loginContainer: {
-        marginTop: 30,
+        marginTop: 20, // Reduced margin to move it up
         alignItems: 'center',
+        marginBottom:20,
     },
     loginText: {
         color: theme.secondaryText,
@@ -269,295 +263,3 @@ const getStyles = (theme) => StyleSheet.create({
 });
 
 export default SignupScreen;
-
-
-
-// import React, { useState } from 'react';
-// import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image } from 'react-native';
-// import { useAuth } from '../../store/AuthContext';
-// import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
-// import { useTheme } from '../../store/ThemeContext';
-
-// const SignupScreen = ({ navigation }) => {
-//   const [firstName, setFirstName] = useState('');
-//   const [lastName, setLastName] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [confirmPassword, setConfirmPassword] = useState('');
-//   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-//   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
-//   const { signup } = useAuth();
-//   const { theme } = useTheme();
-
-//   const handleUserSignup = () => {
-//     if (password !== confirmPassword) {
-//       alert("Passwords do not match!");
-//       return;
-//     }
-//     const fullName = `${firstName} ${lastName}`;
-//     // We will update the signup function in AuthContext to accept a role
-//     signup(fullName, email, password, 'user', navigation);
-//   };
-  
-//   const styles = getStyles(theme);
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
-      
-//       <View style={styles.content}>
-//         <Image
-//           source={require('../../assets/images/BetterU-signup1-removebg-preview.png')}
-//           style={styles.headerImage}
-//         />
-
-//         <Text style={styles.title}>Create Account</Text>
-//         <Text style={styles.subtitle}>to get started now!</Text>
-
-//         <View style={styles.nameRow}>
-//           <TextInput
-//             style={[styles.input, styles.nameInput]}
-//             placeholder="First Name"
-//             placeholderTextColor={theme.secondaryText}
-//             value={firstName}
-//             onChangeText={setFirstName}
-//           />
-//           <TextInput
-//             style={[styles.input, styles.nameInput]}
-//             placeholder="Last Name"
-//             placeholderTextColor={theme.secondaryText}
-//             value={lastName}
-//             onChangeText={setLastName}
-//           />
-//         </View>
-        
-//         <TextInput
-//           style={styles.input}
-//           placeholder="Email Address"
-//           placeholderTextColor={theme.secondaryText}
-//           value={email}
-//           onChangeText={setEmail}
-//           keyboardType="email-address"
-//           autoCapitalize="none"
-//         />
-        
-//         <View style={styles.passwordContainer}>
-//           <TextInput
-//             style={styles.passwordInput}
-//             placeholder="Password"
-//             placeholderTextColor={theme.secondaryText}
-//             value={password}
-//             onChangeText={setPassword}
-//             secureTextEntry={!isPasswordVisible}
-//           />
-//           <TouchableOpacity 
-//             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-//             style={styles.eyeIcon}
-//           >
-//             <Ionicons 
-//               name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
-//               size={24} 
-//               color={theme.text} 
-//             />
-//           </TouchableOpacity>
-//         </View>
-        
-//         <View style={styles.passwordContainer}>
-//           <TextInput
-//             style={styles.passwordInput}
-//             placeholder="Confirm Password"
-//             placeholderTextColor={theme.secondaryText}
-//             value={confirmPassword}
-//             onChangeText={setConfirmPassword}
-//             secureTextEntry={!isConfirmPasswordVisible}
-//           />
-//           <TouchableOpacity 
-//             onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
-//             style={styles.eyeIcon}
-//           >
-//             <Ionicons 
-//               name={isConfirmPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
-//               size={24} 
-//               color={theme.text} 
-//             />
-//           </TouchableOpacity>
-//         </View>
-
-//         <TouchableOpacity style={styles.signupButton} onPress={handleUserSignup}>
-//           <Text style={styles.signupButtonText}>Sign Up</Text>
-//         </TouchableOpacity>
-        
-//         {/* --- NEW: "or" Separator --- */}
-//         <View style={styles.separatorContainer}>
-//             <View style={styles.line} />
-//             <Text style={styles.separatorText}>or sign up as</Text>
-//             <View style={styles.line} />
-//         </View>
-
-//         {/* --- NEW: Role-based Icon Signup --- */}
-//         <View style={styles.roleLoginContainer}>
-//             <TouchableOpacity 
-//                 style={styles.roleButton} 
-//                 onPress={() => navigation.navigate('AdminSignup')}
-//             >
-//                 <View style={styles.roleIconContainer}>
-//                     <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
-//                 </View>
-//                 <Text style={styles.roleText}>Admin</Text>
-//             </TouchableOpacity>
-
-//             <TouchableOpacity 
-//                 style={styles.roleButton} 
-//                 onPress={() => navigation.navigate('DoctorSignup')}
-//             >
-//                 <View style={styles.roleIconContainer}>
-//                     <FontAwesome5 name="user-md" size={28} color={theme.primary} />
-//                 </View>
-//                 <Text style={styles.roleText}>Doctor</Text>
-//             </TouchableOpacity>
-//         </View>
-
-//         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-//           <Text style={styles.loginText}>
-//             Already have an account? <Text style={{ fontWeight: 'bold' }}>Login Now</Text>
-//           </Text>
-//         </TouchableOpacity>
-//       </View>
-//     </SafeAreaView>
-//   );
-// };
-
-// const getStyles = (theme) => StyleSheet.create({
-//   container: { 
-//     flex: 1,
-//     backgroundColor: theme.background,
-//   },
-//   content: { 
-//     flex: 1, 
-//     justifyContent: 'center', 
-//     paddingHorizontal: 30 
-//   },
-//   headerImage: {
-//     width: 250,
-//     height: 150, // Adjusted height
-//     resizeMode: 'contain',
-//     alignSelf: 'center',
-//     marginBottom: 20,
-//   },
-//   title: { 
-//     fontSize: 32,
-//     fontWeight: 'bold', 
-//     color: theme.text,
-//     textAlign: 'center',
-//   },
-//   subtitle: { 
-//     fontSize: 18, 
-//     color: theme.secondaryText,
-//     textAlign: 'center',
-//     marginBottom: 20, // Adjusted margin
-//   },
-//   input: { 
-//     backgroundColor: theme.card,
-//     paddingHorizontal: 20, 
-//     paddingVertical: 15, 
-//     borderRadius: 10, 
-//     fontSize: 16, 
-//     color: theme.text, 
-//     marginBottom: 15,
-//     borderWidth: 1,
-//     borderColor: theme.border,
-//   },
-//   nameRow: { 
-//     flexDirection: 'row', 
-//     justifyContent: 'space-between' 
-//   },
-//   nameInput: { 
-//     width: '48%' 
-//   },
-//   passwordContainer: { 
-//     flexDirection: 'row', 
-//     alignItems: 'center', 
-//     backgroundColor: theme.card, 
-//     borderRadius: 10, 
-//     marginBottom: 15,
-//     borderWidth: 1,
-//     borderColor: theme.border,
-//   },
-//   passwordInput: { 
-//     flex: 1, 
-//     paddingHorizontal: 20, 
-//     paddingVertical: 15, 
-//     fontSize: 16, 
-//     color: theme.text 
-//   },
-//   eyeIcon: { 
-//     padding: 15 
-//   },
-//   signupButton: { 
-//     backgroundColor: theme.primary,
-//     paddingVertical: 18, 
-//     borderRadius: 10, 
-//     alignItems: 'center', 
-//     marginTop: 10, 
-//   },
-//   signupButtonText: { 
-//     color: theme.card,
-//     fontSize: 18, 
-//     fontWeight: 'bold' 
-//   },
-//   loginText: { 
-//     textAlign: 'center', 
-//     color: theme.secondaryText, 
-//     fontSize: 16 
-//   },
-//   // --- NEW STYLES copied from LoginScreen ---
-//   separatorContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginVertical: 20, // Adjusted margin
-//   },
-//   line: {
-//     flex: 1,
-//     height: 1,
-//     backgroundColor: theme.border,
-//   },
-//   separatorText: {
-//     marginHorizontal: 10,
-//     color: theme.secondaryText,
-//     fontSize: 14,
-//     fontWeight: '500',
-//   },
-//   roleLoginContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 20, // Adjusted margin
-//   },
-//   roleButton: {
-//     alignItems: 'center',
-//     marginHorizontal: 25,
-//   },
-//   roleIconContainer: {
-//     width: 65,
-//     height: 65,
-//     borderRadius: 32.5,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: theme.card,
-//     borderWidth: 1,
-//     borderColor: theme.border,
-//     marginBottom: 8,
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.1,
-//     shadowRadius: 4,
-//     elevation: 3,
-//   },
-//   roleText: {
-//     color: theme.text,
-//     fontSize: 14,
-//     fontWeight: '600',
-//   },
-// });
-
-// export default SignupScreen;

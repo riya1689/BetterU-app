@@ -21,7 +21,7 @@ import AdminPanelScreen from '../screens/Main/AdminPanelScreen';
 import ExpertPanelScreen from '../screens/Main/ExpertPanelScreen'; 
 
 // --- ADD THESE TWO LINES ---
-import AdminSignupScreen from '../screens/Auth/AdminSignupScreen';
+//import AdminSignupScreen from '../screens/Auth/AdminSignupScreen';
 import DoctorSignupScreen from '../screens/Auth/DoctorSignupScreen';
 
 import UserListScreen from '../screens/Main/UserListScreen';
@@ -53,7 +53,6 @@ const AppNavigator = () => {
       <Stack.Screen name="ExpertLogin" component={ExpertLoginScreen} />
       
       {/* --- ADD THESE TWO LINES --- */}
-      <Stack.Screen name="AdminSignup" component={AdminSignupScreen} />
       <Stack.Screen name="DoctorSignup" component={DoctorSignupScreen} />
 
 
