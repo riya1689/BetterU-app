@@ -15,14 +15,14 @@ const MOCK_EXPERTS = [
       name: 'Dr. Anika Rahman', 
       specialization: 'CBT', 
       // This now uses require() to load the local image
-      image: require('../../assets/images/BetterU_Dr_Anika.png') 
+      image: require('../../assets/images/BetterU_Dr_Anika-pica.png') 
     },
     { id: '2', name: 'Dr. Fahim Ahmed', specialization: 'Child Psychology',
-      image: require('../../assets/images/BetterU_Dr_Fahim_Ahmed.png') },
+      image: require('../../assets/images/BetterU_Dr_Fahim_Ahmed-pica (1).png') },
     { id: '3', name: 'Dr. Sadia Islam', specialization: 'Trauma & PTSD', 
-      image: require('../../assets/images/BetterU_Dr_Sadia_Islam.png') },
+      image: require('../../assets/images/BetterU_Dr_Sadia_Islam-pica.png') },
     { id: '4', name: 'Dr. Amit Hasan', specialization: 'Anxiety', 
-      image: require('../../assets/images/BetterU_Dr_4.png') }
+      image: require('../../assets/images/BetterU_Dr_4-pica.png') }
 ];
 // ---------------------------------------------------------
 
@@ -100,7 +100,7 @@ const HomeScreen = () => {
             onPress={() => handlePress('AI Chat')} 
           />
           <FeatureCard 
-            imageSource={require('../../assets/images/BetterU_meditation2.png')}
+            imageSource={require('../../assets/images/BetterU-meditation-boy-girl.png')}
             title="Meditation" 
             onPress={() => handlePress('Meditate')} 
           />

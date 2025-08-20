@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useAuth } from '../../store/AuthContext';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons'; 
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from '../../store/ThemeContext';
 
 const LoginScreen = ({ navigation }) => {
@@ -11,240 +11,490 @@ const LoginScreen = ({ navigation }) => {
   const { login } = useAuth();
   const { theme } = useTheme();
 
-  // This function is now just for the main "user" login button.
   const handleUserLogin = () => {
     if (!email || !password) {
-        alert('Please enter email and password.');
-        return;
+      // Replace alert with a more subtle feedback mechanism if possible
+      console.warn('Please enter email and password.');
+      return;
     }
-    // We will update the login function in AuthContext to accept a 'role'
-    login(email, password, 'user', navigation); 
+    login(email, password, 'user', navigation);
   };
 
   const styles = getStyles(theme);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
-      
-      <View style={styles.content}>
-        <Image
-          source={require('../../assets/images/BetterU-login-removebg-preview.png')}
-          style={styles.headerImage}
-        />
-
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>Glad to see you again!</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email Address"
-          placeholderTextColor={theme.secondaryText}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.passwordInput}
-            placeholder="Password"
-            placeholderTextColor={theme.secondaryText}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!isPasswordVisible}
-          />
-          <TouchableOpacity 
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-            style={styles.eyeIcon}
-          >
-            <Ionicons 
-              name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
-              size={24} 
-              color={theme.text} 
+      <StatusBar barStyle={theme.isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.background} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Image
+              source={require('../../assets/images/BetterU-login-removebg-preview.png')}
+              style={styles.headerImage}
             />
+            <Text style={styles.title}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>Glad to see you again!.</Text>
+          </View>
+
+          <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={22} color={theme.secondaryText} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor={theme.secondaryText}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={22} color={theme.secondaryText} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor={theme.secondaryText}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!isPasswordVisible}
+              />
+              <TouchableOpacity
+                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                  size={24}
+                  color={theme.secondaryText}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity>
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleUserLogin}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.separatorContainer}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>or login as</Text>
+            <View style={styles.line} />
+          </View>
+
+          <View style={styles.roleLoginContainer}>
+            <TouchableOpacity
+              style={styles.roleButton}
+              onPress={() => navigation.navigate('AdminLogin')}
+            >
+              <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
+              <Text style={styles.roleText}>Admin</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.roleButton}
+              onPress={() => navigation.navigate('ExpertLogin')}
+            >
+              <FontAwesome5 name="user-md" size={28} color={theme.primary} />
+              <Text style={styles.roleText}>Doctor</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.signupContainer} onPress={() => navigation.navigate('Signup')}>
+            <Text style={styles.signupText}>
+              Don't have an account? <Text style={styles.signupLink}>Sign Up</Text>
+            </Text>
           </TouchableOpacity>
-        </View>
-        
-        <TouchableOpacity>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        {/* --- UPDATED: Main login button now calls handleUserLogin --- */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleUserLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-
-        <View style={styles.separatorContainer}>
-            <View style={styles.line} />
-            <Text style={styles.separatorText}>or</Text>
-            <View style={styles.line} />
-        </View>
-
-        <View style={styles.roleLoginContainer}>
-            {/* --- UPDATED: Admin icon now navigates to AdminLoginScreen --- */}
-            <TouchableOpacity 
-                style={styles.roleButton} 
-                onPress={() => navigation.navigate('AdminLogin')}
-            >
-                <View style={styles.roleIconContainer}>
-                    <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
-                </View>
-                <Text style={styles.roleText}>Admin</Text>
-            </TouchableOpacity>
-
-            {/* --- UPDATED: Doctor icon now navigates to ExpertLoginScreen --- */}
-            <TouchableOpacity 
-                style={styles.roleButton} 
-                onPress={() => navigation.navigate('ExpertLogin')}
-            >
-                <View style={styles.roleIconContainer}>
-                    <FontAwesome5 name="user-md" size={28} color={theme.primary} />
-                </View>
-                <Text style={styles.roleText}>Doctor</Text>
-            </TouchableOpacity>
-        </View>
-        
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.signupText}>
-            Don't have an account? <Text style={{ fontWeight: 'bold' }}>Sign Up Now</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-// --- Styles remain the same ---
 const getStyles = (theme) => StyleSheet.create({
-    container: { 
+    container: {
         flex: 1,
         backgroundColor: theme.background,
-      },
-      content: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        paddingHorizontal: 30 
-      },
-      headerImage: {
-        width: 280,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+        paddingVertical: 30,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    headerImage: {
+        width: 180,
         height: 180,
         resizeMode: 'contain',
-        alignSelf: 'center',
-        marginBottom: 20,
-      },
-      title: { 
-        fontSize: 32, 
-        fontWeight: 'bold', 
-        color: theme.text, 
-        textAlign: 'center',
-      },
-      subtitle: { 
-        fontSize: 18, 
-        color: theme.secondaryText, 
-        textAlign: 'center',
-        marginBottom: 30,
-      },
-      input: { 
-        backgroundColor: theme.card,
-        paddingHorizontal: 20, 
-        paddingVertical: 15, 
-        borderRadius: 10, 
-        fontSize: 16, 
-        color: theme.text, 
-        marginBottom: 15,
-        borderWidth: 1,
-        borderColor: theme.border,
-      },
-      passwordContainer: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        backgroundColor: theme.card, 
-        borderRadius: 10, 
-        marginBottom: 15,
-        borderWidth: 1,
-        borderColor: theme.border,
-      },
-      passwordInput: { 
-        flex: 1, 
-        paddingHorizontal: 20, 
-        paddingVertical: 15, 
-        fontSize: 16, 
-        color: theme.text 
-      },
-      eyeIcon: { 
-        padding: 15 
-      },
-      forgotPassword: { 
-        textAlign: 'right', 
-        color: theme.primary, 
-        marginBottom: 20,
-        fontWeight: '600',
-      },
-      loginButton: { 
-        backgroundColor: theme.primary, 
-        paddingVertical: 18, 
-        borderRadius: 10, 
-        alignItems: 'center', 
-      },
-      loginButtonText: { 
-        color: theme.card, 
-        fontSize: 18, 
-        fontWeight: 'bold' 
-      },
-      signupText: { 
-        textAlign: 'center', 
-        color: theme.secondaryText, 
-        fontSize: 16 
-      },
-      separatorContainer: {
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: theme.text,
+        marginTop: 10,
+    },
+    subtitle: {
+        fontSize: 16,
+        color: theme.secondaryText,
+        marginTop: 8,
+    },
+    formContainer: {
+        width: '100%',
+    },
+    inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 25,
-      },
-      line: {
+        backgroundColor: theme.card,
+        borderRadius: 12,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: theme.border,
+    },
+    inputIcon: {
+        paddingLeft: 15,
+    },
+    input: {
+        flex: 1,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        fontSize: 16,
+        color: theme.text,
+    },
+    eyeIcon: {
+        padding: 15,
+    },
+    forgotPassword: {
+        textAlign: 'right',
+        color: theme.primary,
+        marginBottom: 25,
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    loginButton: {
+        backgroundColor: theme.primary,
+        paddingVertical: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        shadowColor: theme.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    loginButtonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    separatorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 30,
+    },
+    line: {
         flex: 1,
         height: 1,
         backgroundColor: theme.border,
-      },
-      separatorText: {
-        marginHorizontal: 10,
+    },
+    separatorText: {
+        marginHorizontal: 15,
         color: theme.secondaryText,
         fontSize: 14,
-        fontWeight: '500',
-      },
-      roleLoginContainer: {
+    },
+    roleLoginContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 30,
-      },
-      roleButton: {
+    },
+    roleButton: {
         alignItems: 'center',
-        marginHorizontal: 25,
-      },
-      roleIconContainer: {
-        width: 65,
-        height: 65,
-        borderRadius: 32.5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: theme.card,
-        borderWidth: 1,
-        borderColor: theme.border,
-        marginBottom: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      },
-      roleText: {
+        marginHorizontal: 30,
+        padding: 10,
+    },
+    roleText: {
         color: theme.text,
         fontSize: 14,
-        fontWeight: '600',
-      },
+        fontWeight: '500',
+        marginTop: 8,
+    },
+    signupContainer: {
+        marginTop: 30,
+        alignItems: 'center',
+    },
+    signupText: {
+        color: theme.secondaryText,
+        fontSize: 16,
+    },
+    signupLink: {
+        color: theme.primary,
+        fontWeight: 'bold',
+    },
 });
 
 export default LoginScreen;
+
+
+
+
+// import React, { useState } from 'react';
+// import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, StatusBar, Image } from 'react-native';
+// import { useAuth } from '../../store/AuthContext';
+// import { Ionicons, FontAwesome5 } from '@expo/vector-icons'; 
+// import { useTheme } from '../../store/ThemeContext';
+
+// const LoginScreen = ({ navigation }) => {
+//   const [email, setEmail] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+//   const { login } = useAuth();
+//   const { theme } = useTheme();
+
+//   // This function is now just for the main "user" login button.
+//   const handleUserLogin = () => {
+//     if (!email || !password) {
+//         alert('Please enter email and password.');
+//         return;
+//     }
+//     // We will update the login function in AuthContext to accept a 'role'
+//     login(email, password, 'user', navigation); 
+//   };
+
+//   const styles = getStyles(theme);
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
+      
+//       <View style={styles.content}>
+//         <Image
+//           source={require('../../assets/images/BetterU-login-removebg-preview.png')}
+//           style={styles.headerImage}
+//         />
+
+//         <Text style={styles.title}>Welcome Back!</Text>
+//         <Text style={styles.subtitle}>Glad to see you again!</Text>
+
+//         <TextInput
+//           style={styles.input}
+//           placeholder="Email Address"
+//           placeholderTextColor={theme.secondaryText}
+//           value={email}
+//           onChangeText={setEmail}
+//           keyboardType="email-address"
+//           autoCapitalize="none"
+//         />
+        
+//         <View style={styles.passwordContainer}>
+//           <TextInput
+//             style={styles.passwordInput}
+//             placeholder="Password"
+//             placeholderTextColor={theme.secondaryText}
+//             value={password}
+//             onChangeText={setPassword}
+//             secureTextEntry={!isPasswordVisible}
+//           />
+//           <TouchableOpacity 
+//             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+//             style={styles.eyeIcon}
+//           >
+//             <Ionicons 
+//               name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
+//               size={24} 
+//               color={theme.text} 
+//             />
+//           </TouchableOpacity>
+//         </View>
+        
+//         <TouchableOpacity>
+//           <Text style={styles.forgotPassword}>Forgot Password?</Text>
+//         </TouchableOpacity>
+
+//         {/* --- UPDATED: Main login button now calls handleUserLogin --- */}
+//         <TouchableOpacity style={styles.loginButton} onPress={handleUserLogin}>
+//           <Text style={styles.loginButtonText}>Login</Text>
+//         </TouchableOpacity>
+
+//         <View style={styles.separatorContainer}>
+//             <View style={styles.line} />
+//             <Text style={styles.separatorText}>or</Text>
+//             <View style={styles.line} />
+//         </View>
+
+//         <View style={styles.roleLoginContainer}>
+//             {/* --- UPDATED: Admin icon now navigates to AdminLoginScreen --- */}
+//             <TouchableOpacity 
+//                 style={styles.roleButton} 
+//                 onPress={() => navigation.navigate('AdminLogin')}
+//             >
+//                 <View style={styles.roleIconContainer}>
+//                     <FontAwesome5 name="user-cog" size={28} color={theme.primary} />
+//                 </View>
+//                 <Text style={styles.roleText}>Admin</Text>
+//             </TouchableOpacity>
+
+//             {/* --- UPDATED: Doctor icon now navigates to ExpertLoginScreen --- */}
+//             <TouchableOpacity 
+//                 style={styles.roleButton} 
+//                 onPress={() => navigation.navigate('ExpertLogin')}
+//             >
+//                 <View style={styles.roleIconContainer}>
+//                     <FontAwesome5 name="user-md" size={28} color={theme.primary} />
+//                 </View>
+//                 <Text style={styles.roleText}>Doctor</Text>
+//             </TouchableOpacity>
+//         </View>
+        
+//         <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+//           <Text style={styles.signupText}>
+//             Don't have an account? <Text style={{ fontWeight: 'bold' }}>Sign Up Now</Text>
+//           </Text>
+//         </TouchableOpacity>
+//       </View>
+//     </SafeAreaView>
+//   );
+// };
+
+// // --- Styles remain the same ---
+// const getStyles = (theme) => StyleSheet.create({
+//     container: { 
+//         flex: 1,
+//         backgroundColor: theme.background,
+//       },
+//       content: { 
+//         flex: 1, 
+//         justifyContent: 'center', 
+//         paddingHorizontal: 30 
+//       },
+//       headerImage: {
+//         width: 280,
+//         height: 180,
+//         resizeMode: 'contain',
+//         alignSelf: 'center',
+//         marginBottom: 20,
+//       },
+//       title: { 
+//         fontSize: 32, 
+//         fontWeight: 'bold', 
+//         color: theme.text, 
+//         textAlign: 'center',
+//       },
+//       subtitle: { 
+//         fontSize: 18, 
+//         color: theme.secondaryText, 
+//         textAlign: 'center',
+//         marginBottom: 30,
+//       },
+//       input: { 
+//         backgroundColor: theme.card,
+//         paddingHorizontal: 20, 
+//         paddingVertical: 15, 
+//         borderRadius: 10, 
+//         fontSize: 16, 
+//         color: theme.text, 
+//         marginBottom: 15,
+//         borderWidth: 1,
+//         borderColor: theme.border,
+//       },
+//       passwordContainer: { 
+//         flexDirection: 'row', 
+//         alignItems: 'center', 
+//         backgroundColor: theme.card, 
+//         borderRadius: 10, 
+//         marginBottom: 15,
+//         borderWidth: 1,
+//         borderColor: theme.border,
+//       },
+//       passwordInput: { 
+//         flex: 1, 
+//         paddingHorizontal: 20, 
+//         paddingVertical: 15, 
+//         fontSize: 16, 
+//         color: theme.text 
+//       },
+//       eyeIcon: { 
+//         padding: 15 
+//       },
+//       forgotPassword: { 
+//         textAlign: 'right', 
+//         color: theme.primary, 
+//         marginBottom: 20,
+//         fontWeight: '600',
+//       },
+//       loginButton: { 
+//         backgroundColor: theme.primary, 
+//         paddingVertical: 18, 
+//         borderRadius: 10, 
+//         alignItems: 'center', 
+//       },
+//       loginButtonText: { 
+//         color: theme.card, 
+//         fontSize: 18, 
+//         fontWeight: 'bold' 
+//       },
+//       signupText: { 
+//         textAlign: 'center', 
+//         color: theme.secondaryText, 
+//         fontSize: 16 
+//       },
+//       separatorContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginVertical: 25,
+//       },
+//       line: {
+//         flex: 1,
+//         height: 1,
+//         backgroundColor: theme.border,
+//       },
+//       separatorText: {
+//         marginHorizontal: 10,
+//         color: theme.secondaryText,
+//         fontSize: 14,
+//         fontWeight: '500',
+//       },
+//       roleLoginContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginBottom: 30,
+//       },
+//       roleButton: {
+//         alignItems: 'center',
+//         marginHorizontal: 25,
+//       },
+//       roleIconContainer: {
+//         width: 65,
+//         height: 65,
+//         borderRadius: 32.5,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         backgroundColor: theme.card,
+//         borderWidth: 1,
+//         borderColor: theme.border,
+//         marginBottom: 8,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 4,
+//         elevation: 3,
+//       },
+//       roleText: {
+//         color: theme.text,
+//         fontSize: 14,
+//         fontWeight: '600',
+//       },
+// });
+
+// export default LoginScreen;

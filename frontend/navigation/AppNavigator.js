@@ -26,6 +26,9 @@ import DoctorSignupScreen from '../screens/Auth/DoctorSignupScreen';
 
 import UserListScreen from '../screens/Main/UserListScreen';
 
+// --- Payment Status Screen ---
+import PaymentStatusScreen from '../screens/Auth/PaymentStatusScreen'; // Make sure the path is correct
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -60,6 +63,9 @@ const AppNavigator = () => {
       <Stack.Screen name="ExpertPanel" component={ExpertPanelScreen} />
 
       <Stack.Screen name="UserList" component={UserListScreen} />
+
+      {/* ---Payment Status Screen */}
+      <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} options={{ headerShown: false }} />
 
     </Stack.Navigator>
   );
