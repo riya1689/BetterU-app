@@ -29,6 +29,8 @@ import UserListScreen from '../screens/Main/UserListScreen';
 // --- Payment Status Screen ---
 import PaymentStatusScreen from '../screens/Auth/PaymentStatusScreen'; // Make sure the path is correct
 
+import OtpVerificationScreen from '../screens/Auth/OtpVerificationScreen';
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -65,6 +67,9 @@ const AppNavigator = () => {
 
       {/* ---Payment Status Screen */}
       <Stack.Screen name="PaymentStatus" component={PaymentStatusScreen} options={{ headerShown: false }} />
+
+      {/*Add the screen to your stack, inside the <Stack.Navigator>*/}
+      <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
 
     </Stack.Navigator>
   );

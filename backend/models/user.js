@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // <-- Import bcryptjs here
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,20 +18,28 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'doctor'], // Restricts the role to one of these values
-    default: 'user'                  // Sets 'user' as the default for new signups
+    enum: ['user', 'admin', 'doctor'],
+    default: 'user'
+  },
+  // --- ADD THESE NEW FIELDS ---
+  otp: {
+    type: String,
+    default: null
+  },
+  isVerified: {
+    type: Boolean,
+    default: false // New users are not verified by default
   }
+  // --- END NEW FIELDS ---
 }, {
   timestamps: true,
 });
 
-// --- NEW SECTION: Automatically hash password before saving ---
+// This pre-save hook for hashing passwords remains the same.
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
     return next();
   }
-
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -40,7 +48,6 @@ userSchema.pre('save', async function(next) {
     next(error);
   }
 });
-// -----------------------------------------------------------
 
 const User = mongoose.model('User', userSchema);
 

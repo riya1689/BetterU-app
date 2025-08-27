@@ -1,3 +1,4 @@
+import React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../services/apiClient';
@@ -77,17 +78,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // --- UPDATED: The signup function now accepts and sends the 'role' ---
+  // --- UPDATED: The signup function now navigates to the OTP screen ---
   const signup = async (fullName, email, password, role = 'user', navigation) => {
     setIsLoading(true);
     try {
-      // Now we send the role along with the other user details
-      await apiClient.post('/auth/register', { name: fullName, email, password, role });
+      // This API call now returns the user's email on success
+      const response = await apiClient.post('/auth/register', { name: fullName, email, password, role });
       
-      navigation.navigate('Success', { 
-        message: 'Signup Successful!', 
-        nextScreen: 'Login' 
-      });
+      // Navigate to the OTP screen, passing the email as a parameter
+      navigation.navigate('OtpVerification', { email: response.data.user.email });
 
     } catch (error) {
       console.error('Signup Error:', JSON.stringify(error.response || error, null, 2));
