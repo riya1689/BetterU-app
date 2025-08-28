@@ -118,49 +118,52 @@ const AIChatScreen = () => {
     setSelectedImage(null);
     setIsLoading(true);
 
+    // --- THIS IS THE CRITICAL PART ---
+    // The variable MUST be declared here, outside the try...catch block.
+    let aiReplyData; 
+
     try {
-      let aiReplyData; // let aiReplyText;
       if (userImageUri) {
         const formData = new FormData();
         formData.append('reportImage', { uri: userImageUri, name: `report-${Date.now()}.jpg`, type: 'image/jpeg' });
         formData.append('text', userMessageText);
-        // --- FIX: Corrected URL ---
         const response = await apiClient.post('/ai/analyze-report', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         aiReplyData = response.data.reply;
       } else {
         const history = [...messages, userMessage].map(msg => ({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] }));
-        // --- FIX: Corrected URL ---
         const response = await apiClient.post('/ai/chat', { userMessage: userMessageText, history: history });
         aiReplyData = response.data.reply;
       }
-      // Check if the reply is an array of messages
+      
       if (Array.isArray(aiReplyData)) {
-        // Display each message bubble with a delay
         aiReplyData.forEach((textPart, index) => {
           setTimeout(() => {
             const aiMessagePart = {
-              id: `${Date.now().toString()}-ai-${index}`, // Unique ID for each part
+              id: `${Date.now().toString()}-ai-${index}`,
               text: textPart,
               sender: 'ai'
             };
             setMessages(prev => [...prev, aiMessagePart]);
-          }, 600 * (index + 1)); // Stagger the appearance of each bubble
+          }, 600 * (index + 1));
         });
-      } else{
-            const aiReply = { id: Date.now().toString() + 'ai', text: aiReplyData, sender: 'ai' };
-            setMessages(prev => [...prev, aiReply]);
-          }
+      } else {
+        const aiReply = { id: Date.now().toString() + 'ai', text: aiReplyData, sender: 'ai' };
+        setMessages(prev => [...prev, aiReply]);
+      }
 
     } catch (error) {
       console.error('Failed to get AI response:', error.response?.data || error.message);
       const errorReply = { id: Date.now().toString() + 'err', text: 'Sorry, something went wrong. Please try again.', sender: 'ai' };
       setMessages(prev => [...prev, errorReply]);
     } finally {
-      // Delay setting isLoading to false until after the last message has had time to appear
-      const delay = Array.isArray(aiReplyData) ? 600 * (aiReplyData.length + 1) : 0;
+      // This is now safe because aiReplyData is always in scope.
+      // If an error occurred, aiReplyData will be 'undefined', but the code won't crash.
+      const delay = aiReplyData && Array.isArray(aiReplyData) 
+          ? 600 * (aiReplyData.length + 1) 
+          : 600;
       setTimeout(() => setIsLoading(false), delay);
     }
-  };
+};
 
   const themedStyles = styles(theme);
 
