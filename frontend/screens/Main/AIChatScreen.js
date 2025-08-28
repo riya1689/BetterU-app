@@ -147,7 +147,7 @@ const AIChatScreen = () => {
           }, 600 * (index + 1)); // Stagger the appearance of each bubble
         });
       } else{
-            const aiReply = { id: Date.now().toString() + 'ai', text: aiReplyText, sender: 'ai' };
+            const aiReply = { id: Date.now().toString() + 'ai', text: aiReplyData, sender: 'ai' };
             setMessages(prev => [...prev, aiReply]);
           }
 
