@@ -17,6 +17,33 @@ Example response: "As an AI, I don't have a gender or age in the way humans do. 
 Your role is to be a friendly, positive, and empathetic listener. Help users reflect on their feelings and suggest in-app tools like 'Counseling' or 'Meditation' when appropriate. If a user expresses serious distress, gently guide them to the available 'Counseling' section in our app to speak with a professional.
 `;
 
+// --- NEW HELPER FUNCTION TO SPLIT THE RESPONSE ---
+const splitResponseIntoBubbles = (text) => {
+    // 1. Split by double newlines first (common for separating paragraphs)
+    let bubbles = text.split(/\n\s*\n/).filter(Boolean); // filter(Boolean) removes any empty strings
+
+    // 2. If there's only one bubble and it's long, try splitting by sentences.
+    if (bubbles.length === 1 && bubbles[0].length > 250) { // you can adjust the character limit
+      // This regex splits by periods, question marks, or exclamation marks followed by a space or end of string.
+      bubbles = bubbles[0].match(/[^.!?]+[.!?]*/g) || [];
+    }
+    
+    // 3. Clean up any extra whitespace from each bubble
+    bubbles = bubbles.map(b => b.trim()).filter(Boolean);
+
+    // 4. Enforce the maximum of 5 bubbles
+    if (bubbles.length > 5) {
+        const firstFour = bubbles.slice(0, 4);
+        const rest = bubbles.slice(4).join(' '); // Join the rest into the last bubble
+        bubbles = [...firstFour, rest];
+    }
+    
+    // 5. Ensure at least one bubble is returned
+    return bubbles.length > 0 ? bubbles : [text]; 
+};
+
+
+
 // This function for TEXT-ONLY chat remains unchanged.
 const getAIResponse = async (userMessage, chatHistory) => {
   try {
@@ -24,7 +51,7 @@ const getAIResponse = async (userMessage, chatHistory) => {
     const lowerCaseMessage = userMessage.toLowerCase();
     
     if (blockKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
-      return "It seems like you're asking about a topic that's outside of my purpose. I'm here to support your emotional wellness. How are you feeling today?";
+      return ["It seems like you're asking about a topic that's outside of my purpose. I'm here to support your emotional wellness. How are you feeling today?"];
     }
 
     const model = genAI.getGenerativeModel({ 
@@ -38,11 +65,14 @@ const getAIResponse = async (userMessage, chatHistory) => {
 
     const result = await chat.sendMessage(userMessage);
     const response = await result.response;
+    const fullText = response.text();
     return response.text();
+    // Instead of returning the full text, return the split bubbles
+    return splitResponseIntoBubbles(fullText);
 
   } catch (error) {
-    console.error('Error getting response from Gemini:', error);
-    return 'I am having a little trouble connecting right now. Please try again in a moment.';
+    console.error('Error getting response:', error);
+    return ['I am having a little trouble connecting right now. Please try again in a moment.'];
   }
 };
 
