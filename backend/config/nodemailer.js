@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER, // Your Gmail address from .env
     pass: process.env.EMAIL_PASS, // Your App Password from .env
-  },
+  }, 
 });
 
 // Function to send the verification email
