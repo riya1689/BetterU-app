@@ -1,12 +1,16 @@
 const nodemailer = require('nodemailer');
-
-// Create a transporter object using the default SMTP transport
+// Create a transporter object using manual SMTP configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Use the Gmail service
+  host: 'smtp.gmail.com', // Google's SMTP server
+  port: 587, // Use port 587 for TLS
+  secure: false, // false for port 587, as it will upgrade to TLS
   auth: {
     user: process.env.EMAIL_USER, // Your Gmail address from .env
     pass: process.env.EMAIL_PASS, // Your App Password from .env
   }, 
+  tls: {
+    rejectUnauthorized: false 
+  }
 });
 
 // Function to send the verification email
