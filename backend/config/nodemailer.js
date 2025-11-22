@@ -1,15 +1,28 @@
 const nodemailer = require('nodemailer');
-
+require("dotenv").config();
 // Create a transporter object using manual SMTP configuration
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com', 
-  port: 465, 
-  secure: true, 
+  port: 587, 
+  secure: false, 
   auth: {
     user: process.env.EMAIL_USER, 
     pass: process.env.EMAIL_PASS, 
   }, 
+  tls: {
+    rejectUnauthorized: false // CRITICAL: Helps bypass Render's strict firewall
+  }
 });
+
+// Function to verify connection on startup
+const verifyEmailConnection = async () => {
+  try {
+    await transporter.verify();
+    console.log('✅ Nodemailer (Gmail) connected successfully!');
+  } catch (error) {
+    console.error('❌ Nodemailer (Gmail) connection failed:', error);
+  }
+};
 
 // Function to send the verification email
 const sendVerificationEmail = async (to, otp) => {
@@ -36,17 +49,6 @@ const sendVerificationEmail = async (to, otp) => {
     throw new Error('Could not send verification email.');
   }
 };
-
-
-const verifyEmailConnection = async () => {
-  try {
-    await transporter.verify();
-    console.log('✅ Nodemailer (Gmail) connected successfully!');
-  } catch (error) {
-    console.error('❌ Nodemailer (Gmail) connection failed:', error);
-  }
-};
-
 
 module.exports = { 
   sendVerificationEmail, 

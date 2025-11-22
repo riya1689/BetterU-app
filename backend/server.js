@@ -9,6 +9,8 @@ const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
+const { verifyEmailConnection } = require('./config/nodemailer');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -31,6 +33,7 @@ app.use('/api/ai', aiRoutes);
 
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    await verifyEmailConnection();
     const connectionStatus = await checkConnection();
     console.log(connectionStatus.message);
     if (!connectionStatus.connected) {
