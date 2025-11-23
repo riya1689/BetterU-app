@@ -1,6 +1,20 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-
+require("dotenv").config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+//AI connection check function
+
+const verifyGeminiConnection = async () => {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // Send a tiny prompt to test the API Key
+    await model.generateContent("Hello"); 
+    console.log('✅ BetterU AI Connected Successfully!');
+  } catch (error) {
+    console.error('❌ BetterU AI Connection Failed:', error.message);
+    console.error('   -> Check your BetterU_API_KEY in .env file');
+  }
+};
 
 // This system prompt is for the TEXT-ONLY chat. It remains unchanged.
 const systemPrompt = `
@@ -66,7 +80,7 @@ const getAIResponse = async (userMessage, chatHistory) => {
     const result = await chat.sendMessage(userMessage);
     const response = await result.response;
     const fullText = response.text();
-    return response.text();
+    //return response.text();
     // Instead of returning the full text, return the split bubbles
     return splitResponseIntoBubbles(fullText);
 
@@ -131,4 +145,5 @@ const analyzeImageWithAI = async (imageFile) => {
 module.exports = {
   getAIResponse,
   analyzeImageWithAI, 
+  verifyGeminiConnection
 };

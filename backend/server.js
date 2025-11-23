@@ -1,4 +1,5 @@
 // server.js
+const {verifyGeminiConnection} = require('./services/geminiService');
 require("dotenv").config();
 const express = require("express");
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -33,6 +34,7 @@ app.use('/api/ai', aiRoutes);
 
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    await verifyGeminiConnection();
     await verifyEmailConnection();
     const connectionStatus = await checkConnection();
     console.log(connectionStatus.message);
