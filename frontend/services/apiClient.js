@@ -2,6 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your live backend URL
+//const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://betteru-backend.onrender.com/api';
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://betteru-backend.onrender.com';
 
 const apiClient = axios.create({

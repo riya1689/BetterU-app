@@ -26,7 +26,7 @@ const registerUser = async (req, res) => {
       console.log("Found unverified user account. Overwriting with new data...");
       
       user.name = name;
-      user.password = hashedPassword; // Update password
+      user.password = password; // Update password
       user.role = role;
       user.otp = otp; // Set new OTP
       user.isVerified = false; // Ensure it stays false until they enter OTP
