@@ -38,7 +38,7 @@ const registerUser = async (req, res) => {
       user = new User({
         name,
         email,
-        password: hashedPassword, // Save the hashed password
+        password: password, // Save the hashed password
         role,
         otp: otp,
         isVerified: false
