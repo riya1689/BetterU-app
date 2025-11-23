@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const verifyGeminiConnection = async () => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     // Send a tiny prompt to test the API Key
     await model.generateContent("Hello"); 
     console.log('✅ BetterU AI Connected Successfully!');
@@ -69,7 +69,7 @@ const getAIResponse = async (userMessage, chatHistory) => {
     }
 
     const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
+        model: "gemini-2.5-flash",
         systemInstruction: systemPrompt,
     });
 
@@ -96,7 +96,7 @@ const getAIResponse = async (userMessage, chatHistory) => {
 // --- NEW, IMPROVED FUNCTION for image analysis ---
 const analyzeImageWithAI = async (imageFile) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // --- THIS IS THE NEW, MORE DETAILED PROMPT ---
         const analysisPrompt = `
