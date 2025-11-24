@@ -40,7 +40,7 @@ const AdminJobManagerScreen = ({ navigation }) => {
     setLoading(true);
     try {
       // Use your actual local IP
-      const response = await fetch('http://10.0.2.2:5000/api/jobs/active'); 
+      const response = await fetch('http://10.0.2.2:5000/api/jobs'); 
       const data = await response.json();
       if (response.ok) {
         setJobs(data);
@@ -75,7 +75,7 @@ const AdminJobManagerScreen = ({ navigation }) => {
       };
 
       // POST request to Admin Route
-      const response = await fetch('http://10.0.2.2:5000/api/admin/job', {
+      const response = await fetch('http://10.0.2.2:5000/api/admin/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const AdminJobManagerScreen = ({ navigation }) => {
             try {
               // NOTE: We need to ensure backend has DELETE /api/admin/job/:id
               // If you haven't added deleteJob in backend yet, this will fail.
-              const response = await fetch(`http://10.0.2.2:5000/api/admin/job/${id}`, {
+              const response = await fetch(`http://10.0.2.2:5000/api/admin/jobs/${id}`, {
                 method: 'DELETE',
               });
               
