@@ -30,6 +30,8 @@ import UserListScreen from '../screens/Main/UserListScreen';
 import PaymentStatusScreen from '../screens/Auth/PaymentStatusScreen'; // Make sure the path is correct
 
 import OtpVerificationScreen from '../screens/Auth/OtpVerificationScreen';
+import AdminJobManagerScreen from '../screens/Main/AdminJobManagerScreen';
+import JobBoardScreen from '../screens/Main/JobBoardScreen';
 
 const Stack = createStackNavigator();
 
@@ -60,6 +62,9 @@ const AppNavigator = () => {
 
       {/* --- Panel Screens --- */}
       <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
+      {/* --- Job manager screen --- */}
+      <Stack.Screen name="AdminJobManager" component={AdminJobManagerScreen} />
+      
       {/* --- FIX: Corrected this to match the file we created --- */}
       <Stack.Screen name="ExpertPanel" component={ExpertPanelScreen} />
 
@@ -70,6 +75,9 @@ const AppNavigator = () => {
 
       {/*Add the screen to your stack, inside the <Stack.Navigator>*/}
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
+
+      {/* ---Job Board Screen */}
+      <Stack.Screen name="JobBoard" component={JobBoardScreen} />
 
     </Stack.Navigator>
   );

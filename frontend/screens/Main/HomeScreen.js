@@ -109,6 +109,13 @@ const HomeScreen = () => {
             title="Self-Assess" 
             onPress={() => handlePress('Assess')}
           />
+          {/* ----------- Join as Doctor ------------- */}
+
+          <FeatureCard 
+            imageSource={require('../../assets/images/HiringDoctor.jpg')} // Placeholder image
+            title="Join as Doctor" 
+            onPress={() => handlePress('JobBoard')} 
+          />
         </View>
         {/* ------------------------------------ */}
       </ScrollView>

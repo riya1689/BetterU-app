@@ -75,6 +75,24 @@ const createJob = async (req, res) => {
   }
 };
 
+//------------- Delete Job -----------
+const deleteJob = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+
+    if (job) {
+      await job.deleteOne();
+      res.json({ message: 'Job circular removed successfully' });
+    } else {
+      res.status(404).json({ message: 'Job not found' });
+    }
+  } catch (error) {
+    console.error("Delete Job Error:", error);
+    res.status(500).send('Server Error');
+  }
+};
+
+
 // --- 2. Get All Pending Applications (Admin Dashboard) ---
 const getAllApplications = async (req, res) => {
   try {
@@ -179,6 +197,7 @@ module.exports = {
   getAllDoctors,
   deleteUser,
   createJob,
+  deleteJob,
   getAllApplications,
   approveDoctorApplication,
   rejectDoctorApplication,

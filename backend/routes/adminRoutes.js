@@ -22,9 +22,11 @@ router.route('/doctors').get(protect, admin, getAllDoctors);
 // Delete a user by ID
 router.route('/users/:id').delete(protect, admin, deleteUser);
 
-// --- Jobs ---
+// --- Post Jobs ---
 router.post('/jobs', createJob); // POST /api/admin/jobs
 
+// ------ Delete Jobs -------
+router.delete('/jobs/:id', deleteJob);
 // --- Applications ---
 router.get('/applications', getAllApplications); // GET /api/admin/applications
 

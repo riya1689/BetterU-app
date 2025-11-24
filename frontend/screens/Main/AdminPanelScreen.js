@@ -32,6 +32,25 @@ const AdminPanelScreen = ({ navigation }) => {
           <Ionicons name="medkit-outline" size={32} color={theme.primary} />
           <Text style={styles.menuItemText}>Manage Doctors</Text>
         </TouchableOpacity>
+
+        {/* --- Manage Job Circulars --- */}
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('AdminJobManager')}
+        >
+          <Ionicons name="briefcase-outline" size={32} color={theme.primary} />
+          <Text style={styles.menuItemText}>Job Circulars</Text>
+        </TouchableOpacity>
+
+        {/* --- Manage Applications --- */}
+        <TouchableOpacity 
+           style={styles.menuItem}
+           // We will create this screen later or if you have it
+           onPress={() => console.log('Applications Screen coming soon')}
+        >
+           <Ionicons name="documents-outline" size={32} color={theme.primary} />
+           <Text style={styles.menuItemText}>Applications</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
