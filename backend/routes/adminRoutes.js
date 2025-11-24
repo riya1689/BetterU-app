@@ -3,7 +3,8 @@ const router = express.Router();
 const { getAllUsers, 
         getAllDoctors, 
         deleteUser,
-        createJob, 
+        createJob,
+        deleteJob, 
         getAllApplications, 
         approveDoctorApplication, 
         rejectDoctorApplication  
