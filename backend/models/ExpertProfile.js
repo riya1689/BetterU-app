@@ -34,6 +34,6 @@ const expertProfileSchema = new Schema({
   timestamps: true
 });
 
-const expertProfile = mongoose.model('ExpertProfile', expertProfileSchema);
+const ExpertProfile = mongoose.model('ExpertProfile', expertProfileSchema);
 
 module.exports = ExpertProfile;

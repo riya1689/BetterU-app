@@ -9,6 +9,7 @@ const { checkConnection } = require('./services/payment/sslcommerzService');
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const jobRoutes = require('./routes/jobRoutes');
 
 const { verifyEmailConnection } = require('./config/nodemailer');
 
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORRECT: Apply middleware BEFORE defining routes
 app.use(cors()); // This should be one of the first
 app.use(express.json()); // To parse JSON request bodies
-app.use('/api/admin', adminRoutes);
+
 
 // Connect to MongoDB
 connectDB();
@@ -28,9 +29,11 @@ app.get("/", (req, res) => {
 });
 
 // Now, define your routes
+app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/jobs',jobRoutes);
 
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);

@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, getAllDoctors, deleteUser } = require('../controllers/adminController');
+const { getAllUsers, 
+        getAllDoctors, 
+        deleteUser,
+        createJob, 
+        getAllApplications, 
+        approveDoctorApplication, 
+        rejectDoctorApplication  
+    } = require('../controllers/adminController');
 // --- FIX: Corrected the folder name from 'middleware' to 'middlewares' ---
 const { protect, admin } = require('../middlewares/authMiddleware');
 
@@ -14,6 +21,19 @@ router.route('/doctors').get(protect, admin, getAllDoctors);
 
 // Delete a user by ID
 router.route('/users/:id').delete(protect, admin, deleteUser);
+
+// --- Jobs ---
+router.post('/jobs', createJob); // POST /api/admin/jobs
+
+// --- Applications ---
+router.get('/applications', getAllApplications); // GET /api/admin/applications
+
+// --- Approval Logic ---
+// PUT /api/admin/applications/:id/approve
+router.put('/applications/:applicationId/approve', approveDoctorApplication); 
+
+// PUT /api/admin/applications/:id/reject
+router.put('/applications/:applicationId/reject', rejectDoctorApplication);
 
 module.exports = router;
 

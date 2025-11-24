@@ -1,5 +1,7 @@
 const User = require('../models/user');
-
+const Job = require('../models/Job');
+const DoctorApplication = require('../models/DoctorApplication');
+const ExpertProfile = require('../models/ExpertProfile');
 // @desc    Get all users with the 'user' role
 // @route   GET /api/admin/users
 // @access  Private/Admin
@@ -45,9 +47,139 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// --- 1. Create a New Job Circular (Admin) ---
+const createJob = async (req, res) => {
+  try {
+    const { title, designation, requirements, description, salaryRange, deadline } = req.body;
+
+    // Validate required fields
+    if (!title || !designation || !description || !deadline) {
+      return res.status(400).json({ message: "Please fill in all required fields." });
+    }
+
+    const newJob = new Job({
+      title,
+      designation,
+      requirements, // Expecting an array of strings ["MBBS", "3 Years Exp"]
+      description,
+      salaryRange,
+      deadline
+    });
+
+    await newJob.save();
+    res.status(201).json({ message: "Job circular posted successfully!", job: newJob });
+
+  } catch (error) {
+    console.error("Create Job Error:", error);
+    res.status(500).json({ message: "Failed to post job." });
+  }
+};
+
+// --- 2. Get All Pending Applications (Admin Dashboard) ---
+const getAllApplications = async (req, res) => {
+  try {
+    // Fetch all applications and populate the user's name/email just in case
+    const applications = await DoctorApplication.find()
+      .populate('applicantId', 'name email') 
+      .populate('jobId', 'title designation')
+      .sort({ createdAt: -1 }); // Newest first
+
+    res.json(applications);
+  } catch (error) {
+    console.error("Fetch Applications Error:", error);
+    res.status(500).json({ message: "Failed to fetch applications." });
+  }
+};
+
+// --- 3. Approve Doctor Application (THE MAIN LOGIC) ---
+const approveDoctorApplication = async (req, res) => {
+  const { applicationId } = req.params;
+
+  try {
+    // A. Find the Application
+    const application = await DoctorApplication.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ message: "Application not found." });
+    }
+
+    if (application.status === 'approved') {
+      return res.status(400).json({ message: "This application is already approved." });
+    }
+
+    // B. Find the User associated with this application
+    const user = await User.findById(application.applicantId);
+    if (!user) {
+      return res.status(404).json({ message: "Applicant user account not found." });
+    }
+
+    // C. Check if they are already a doctor
+    const existingProfile = await ExpertProfile.findOne({ user: user._id });
+    if (existingProfile) {
+      return res.status(400).json({ message: "User is already registered as a doctor." });
+    }
+
+    // D. Calculate Years of Experience (Current Year - Passing Year)
+    const currentYear = new Date().getFullYear();
+    const passingYear = parseInt(application.passingYear) || currentYear;
+    const calculatedExperience = Math.max(0, currentYear - passingYear);
+
+    // E. Create the Expert Profile
+    const newExpertProfile = new ExpertProfile({
+      user: user._id,
+      specialization: application.specialization,
+      // Mapping NID to License temporarily if License wasn't in the form
+      licenseNumber: application.nidNumber || `TEMP-${Date.now()}`, 
+      yearsOfExperience: calculatedExperience,
+      bio: `Dr. ${application.fullName} is a specialist in ${application.specialization} with ${calculatedExperience} years of experience.`,
+    });
+
+    await newExpertProfile.save();
+
+    // F. Update User Role to 'doctor'
+    user.role = 'doctor';
+    await user.save();
+
+    // G. Update Application Status
+    application.status = 'approved';
+    await application.save();
+
+    res.json({ 
+      message: "Doctor approved successfully! User role updated.", 
+      user: { name: user.name, role: user.role } 
+    });
+
+  } catch (error) {
+    console.error("Approve Doctor Error:", error);
+    res.status(500).json({ message: "Failed to approve doctor." });
+  }
+};
+
+// --- 4. Reject Application ---
+const rejectDoctorApplication = async (req, res) => {
+  const { applicationId } = req.params;
+  try {
+    const application = await DoctorApplication.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ message: "Application not found." });
+    }
+
+    application.status = 'rejected';
+    await application.save();
+
+    res.json({ message: "Application rejected." });
+
+  } catch (error) {
+    console.error("Reject Error:", error);
+    res.status(500).json({ message: "Failed to reject application." });
+  }
+};
 
 module.exports = {
   getAllUsers,
   getAllDoctors,
   deleteUser,
+  createJob,
+  getAllApplications,
+  approveDoctorApplication,
+  rejectDoctorApplication,
 };
