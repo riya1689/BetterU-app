@@ -32,7 +32,7 @@ import PaymentStatusScreen from '../screens/Auth/PaymentStatusScreen'; // Make s
 import OtpVerificationScreen from '../screens/Auth/OtpVerificationScreen';
 import AdminJobManagerScreen from '../screens/Main/AdminJobManagerScreen';
 import JobBoardScreen from '../screens/Main/JobBoardScreen';
-
+import JobApplicationScreen from '../screens/Main/JobApplicationScreen';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -78,7 +78,7 @@ const AppNavigator = () => {
 
       {/* ---Job Board Screen */}
       <Stack.Screen name="JobBoard" component={JobBoardScreen} />
-
+      <Stack.Screen name="JobApplication" component={JobApplicationScreen} />
     </Stack.Navigator>
   );
 };
