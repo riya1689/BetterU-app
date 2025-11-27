@@ -1,46 +1,39 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
-const AppHeader = () => {
+
+// Receive unreadCount and onNotificationPress as props
+const AppHeader = ({ unreadCount = 0, onNotificationPress }) => {
   const navigation = useNavigation();
 
-  // This function will handle the login press.
-  // const onLoginPress = () => {
-  //   // This now navigates to the full-page Login screen
-  //   navigation.navigate('Login'); 
-  // };
-
-//   return (
-//     <View style={styles.container}>
-//       {/* Left Side: App Logo */}
-//       <Text style={styles.logo}>BetterU</Text>
-
-//       {/* Right Side: Buttons */}
-//       <View style={styles.rightContainer}>
-//         <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
-//           <Text style={styles.loginText}>LOGIN</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity onPress={onLoginPress}>
-//           <Image 
-//             source={{ uri: 'https://placehold.co/100x100/E0E0E0/333?text= ' }} 
-//             style={styles.avatar} 
-//           />
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// };
 const onProfilePress = () => {
     navigation.navigate('Profile');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>BetterU</Text>
+      <Text style={styles.logo}>𝓑𝓮𝓽𝓽𝓮𝓻𝓤</Text>
 
       <View style={styles.rightContainer}>
-        {/* --- UPDATE: The LOGIN button has been removed --- */}
+
+      {/* --- 1. Notification Bell --- */}
+        {/* Only show this button if onNotificationPress is passed (e.g., Home Screen) */}
+        {onNotificationPress && (
+            <TouchableOpacity style={styles.iconButton} onPress={onNotificationPress}>
+                <Ionicons name="notifications-outline" size={26} color="#333" />
+                {unreadCount > 0 && (
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+        )}
+
+        {/* --- Profile Avatar --- */}
         <TouchableOpacity onPress={onProfilePress}>
           <Image 
             source={{ uri: 'https://placehold.co/100x100/E0E0E0/333?text= ' }} 
@@ -63,14 +56,43 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   logo: {
-    fontSize: 24,
+    fontSize: 32, // Increased base size
     fontWeight: 'bold',
-    color: '#1e3a8a', // Our theme color
+    color: '#1e3a8a',
+    // This stretches the text vertically (Y-axis) by 20%
+    transform: [{ scaleY: 1.2 }], 
+    // Adding a tiny margin to prevent clipping due to the scale
+    marginVertical: 2, 
+    marginLeft: 5, // Just to balance the scale visually
   },
   rightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  iconButton: {
+    marginRight: 15, // Space between bell and avatar
+    position: 'relative',
+    padding: 5,
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#f0f4f8'
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+
   loginButton: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 20,

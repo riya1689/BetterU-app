@@ -33,11 +33,19 @@ router.get('/applications', getAllApplications); // GET /api/admin/applications
 
 // --- Approval Logic ---
 // PUT /api/admin/applications/:id/approve
-router.put('/applications/:applicationId/approve', approveDoctorApplication); 
+router.put(
+    '/applications/:applicationId/approve', 
+    protect, // <--- Necessary to get req.user.id
+    admin,   // <--- Necessary to ensure only admins can do this
+    approveDoctorApplication
+); 
 
-// PUT /api/admin/applications/:id/reject
-router.put('/applications/:applicationId/reject', rejectDoctorApplication);
-
+router.put(
+    '/applications/:applicationId/reject', 
+    protect, 
+    admin, 
+    rejectDoctorApplication
+);
 module.exports = router;
 
 

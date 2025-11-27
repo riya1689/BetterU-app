@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../store/ThemeContext';
 import { useAuth } from '../../store/AuthContext';
 
@@ -31,6 +32,11 @@ const JobApplicationScreen = () => {
   const [phone, setPhone] = useState('');
   const [age, setAge] = useState('');
   
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState(''); // Could be a dropdown, but TextInput for now
+  const [presentAddress, setPresentAddress] = useState('');
+
+
   const [specialization, setSpecialization] = useState('');
   const [medicalDegree, setMedicalDegree] = useState('');
   const [institute, setInstitute] = useState('');
@@ -39,7 +45,7 @@ const JobApplicationScreen = () => {
 
   const [cvUrl, setCvUrl] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
-  const [portfolio, setPortfolio] = useState('');
+  //const [portfolio, setPortfolio] = useState('');
   const [socialLink, setSocialLink] = useState('');
 
   const [bkashNumber, setBkashNumber] = useState('');
@@ -48,25 +54,44 @@ const JobApplicationScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if(!fullName || !email || !phone || !cvUrl || !profileImageUrl || !bkashNumber) {
+    if(!fullName || !email || !phone || !dateOfBirth || !gender || !presentAddress || !cvUrl || !profileImageUrl || !bkashNumber) {
       Alert.alert("Missing Info", "Please fill in all required fields (Name, Email, Phone, CV Link, Photo Link, Bkash).");
       return;
     }
 
     setLoading(true);
     try {
+
+        //GET THE TOKEN SAFELY
+      // First try user.token, if not there, try AsyncStorage 'userToken' (common key)
+      let token = user?.token;
+      if (!token) {
+        token = await AsyncStorage.getItem('userToken'); 
+      }
+      
+      // Debugging: Check if we actually have a token
+      console.log("Sending Application with Token:", token); 
+
+      if (!token) {
+        Alert.alert("Auth Error", "You are not logged in. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         jobId,
         fullName,
         email,
         phone,
+        dateOfBirth,    // Add to payload
+        gender,         // Add to payload
+        presentAddress,
         age,
         specialization,
         medicalDegree,
         institute,
         passingYear,
         experience,
-        portfolio,
         socialLink,
         bkashNumber,
         nidNumber,
@@ -79,7 +104,7 @@ const JobApplicationScreen = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}` // Assuming you store token in AuthContext
+          'Authorization': `Bearer ${token}` // Assuming you store token in AuthContext
         },
         body: JSON.stringify(payload)
       });
@@ -120,8 +145,12 @@ const JobApplicationScreen = () => {
         <TextInput style={styles.input} placeholder="Phone Number *" placeholderTextColor="#888" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
         <TextInput style={styles.input} placeholder="Age *" placeholderTextColor="#888" value={age} onChangeText={setAge} keyboardType="numeric" />
 
+        <TextInput style={styles.input} placeholder="Date of Birth (DD/MM/YYYY) *" placeholderTextColor="#888" value={dateOfBirth} onChangeText={setDateOfBirth} />
+        <TextInput style={styles.input} placeholder="Gender (Male/Female) *" placeholderTextColor="#888" value={gender} onChangeText={setGender} />
+        <TextInput style={styles.input} placeholder="Present Address *" placeholderTextColor="#888" value={presentAddress} onChangeText={setPresentAddress} multiline />
+
         <Text style={styles.sectionHeader}>Professional Info</Text>
-        <TextInput style={styles.input} placeholder="Specialization (e.g. Cardiologist) *" placeholderTextColor="#888" value={specialization} onChangeText={setSpecialization} />
+        <TextInput style={styles.input} placeholder="Specialization (e.g. CBT) *" placeholderTextColor="#888" value={specialization} onChangeText={setSpecialization} />
         <TextInput style={styles.input} placeholder="Degree (e.g. MBBS, FCPS) *" placeholderTextColor="#888" value={medicalDegree} onChangeText={setMedicalDegree} />
         <TextInput style={styles.input} placeholder="Medical Institute *" placeholderTextColor="#888" value={institute} onChangeText={setInstitute} />
         <TextInput style={styles.input} placeholder="Passing Year *" placeholderTextColor="#888" value={passingYear} onChangeText={setPassingYear} keyboardType="numeric" />
@@ -131,7 +160,6 @@ const JobApplicationScreen = () => {
         <Text style={styles.hint}>Paste public links (Google Drive/Dropbox)</Text>
         <TextInput style={styles.input} placeholder="Profile Picture Link (JPG/PNG) *" placeholderTextColor="#888" value={profileImageUrl} onChangeText={setProfileImageUrl} />
         <TextInput style={styles.input} placeholder="CV / Resume Link *" placeholderTextColor="#888" value={cvUrl} onChangeText={setCvUrl} />
-        <TextInput style={styles.input} placeholder="Portfolio Link (Optional)" placeholderTextColor="#888" value={portfolio} onChangeText={setPortfolio} />
         <TextInput style={styles.input} placeholder="Social Profile Link (Optional)" placeholderTextColor="#888" value={socialLink} onChangeText={setSocialLink} />
 
         <Text style={styles.sectionHeader}>Verification & Payment</Text>

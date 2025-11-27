@@ -25,10 +25,10 @@ const ExpertCard = ({ expert, onPress }) => {
 
 const styles = (theme) => StyleSheet.create({
   container: {
-    width: width * 0.4,
-    height: width * 0.5,
-    borderRadius: 15,
-    marginRight: 15,
+    width: width * 0.28,
+    height: width * 0.35,
+    borderRadius: 12,
+    marginRight: 10,
     overflow: 'visible',// Allow shadow to be visible
     backgroundColor: theme.card, // Add a background for the shadow to appear
     shadowColor: '#000',
@@ -47,10 +47,10 @@ const styles = (theme) => StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    padding: 10,
-    borderBottomLeftRadius: 15,//change
-    borderBottomRightRadius: 15,//change
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 6,//10
+    borderBottomLeftRadius: 12,//change 15
+    borderBottomRightRadius: 12,//change 15
   },
   name: {
     color: 'white',

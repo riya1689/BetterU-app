@@ -11,17 +11,17 @@ import { Ionicons } from '@expo/vector-icons';
 const MOCK_PSYCHOLOGISTS = [
   { 
     id: '1', 
-    name: 'Dr. Anika Rahman', 
-    specialization: 'Cognitive Behavioral Therapy', 
+    name: 'Dr. Mizanur Rahman', 
+    specialization: 'Psychiatrist', 
     experience: 10,
     sessions: 150,
     details: 'MBBS, MS (Psychology), Dhaka Medical College',
     price: 2500,
-    image: 'https://placehold.co/100x100/E0E0E0/333?text=Dr.+A' 
+    image: require('../../assets/images/dr-mizanur-rahman-Picsart-AiImageEnhancer.png') 
   },
   { 
     id: '2', 
-    name: 'Dr. Fahim Ahmed', 
+    name: 'Dr. Md. Imran Hossain', 
     specialization: 'Child Psychology', 
     experience: 8,
     sessions: 200,
@@ -31,8 +31,8 @@ const MOCK_PSYCHOLOGISTS = [
   },
   { 
     id: '3', 
-    name: 'Dr. Sadia Islam', 
-    specialization: 'Trauma and PTSD', 
+    name: 'Dr. Poly Bhoumik', 
+    specialization: 'Child Psychologist', 
     experience: 12,
     sessions: 180,
     details: 'MBBS, MD (Psychiatry), National Institute of Mental Health',

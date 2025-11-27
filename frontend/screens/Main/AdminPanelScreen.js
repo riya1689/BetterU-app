@@ -1,17 +1,79 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  SafeAreaView, 
+  TouchableOpacity,
+  ActivityIndicator ,
+  ScrollView
+} from 'react-native';
 import { useTheme } from '../../store/ThemeContext';
+import { useAuth } from '../../store/AuthContext'; // <--- THIS WAS MISSING
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AdminPanelScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const styles = getStyles(theme);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // --- Fetch Unread Count ---
+  const fetchUnreadCount = async () => {
+    try {
+      let token = user?.token;
+      if (!token) {
+        token = await AsyncStorage.getItem('userToken');
+      }
+
+      if (!token) return;
+
+      const response = await fetch('http://10.0.2.2:5000/api/notifications/unread-count', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        setUnreadCount(data.count);
+      }
+    } catch (error) {
+      console.log("Notification Fetch Error:", error);
+    }
+  };
+
+  // Refresh count every time the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchUnreadCount();
+    }, [])
+  );
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Admin Panel</Text>
-        <Text style={styles.subtitle}>Select an option to manage</Text>
+        <View>
+            <Text style={styles.title}>Admin Panel</Text>
+            <Text style={styles.subtitle}>Select an option to manage</Text>
+        </View>
+
+        {/* Notification Bell */}
+        <TouchableOpacity 
+          style={styles.notificationButton} 
+          // We will build 'Notifications' screen in the next step
+          onPress={() => navigation.navigate('Notifications')} 
+        >
+          <Ionicons name="notifications-outline" size={28} color={theme.text} />
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.menuContainer}>
@@ -32,6 +94,16 @@ const AdminPanelScreen = ({ navigation }) => {
           <Ionicons name="medkit-outline" size={32} color={theme.primary} />
           <Text style={styles.menuItemText}>Manage Doctors</Text>
         </TouchableOpacity>
+
+          {/* --- NEW SECTION: Global Booking Manager --- */}
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('AdminSessionList')} // Navigates to the new screen
+        >
+          <Ionicons name="calendar-outline" size={32} color={theme.primary} />
+          <Text style={styles.menuItemText}>Booked Sessions</Text>
+        </TouchableOpacity>
+        {/* ------------------------------------------- */}
 
         {/* --- Manage Job Circulars --- */}
         <TouchableOpacity 
@@ -63,8 +135,12 @@ const getStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: 30,
+    paddingTop: 50,
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
@@ -76,6 +152,31 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.secondaryText,
     marginTop: 8,
   },
+
+  // --- Notification Styles ---
+  notificationButton: {
+    position: 'relative',
+    padding: 5,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff'
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+
   menuContainer: {
     padding: 20,
   },

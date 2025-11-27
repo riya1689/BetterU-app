@@ -12,6 +12,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 
 const { verifyEmailConnection } = require('./config/nodemailer');
+const notificationRoutes = require('./routes/notificationRoutes');
+const moodRoutes = require('./routes/moodRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +36,8 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/jobs',jobRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/moods', moodRoutes);
 
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);

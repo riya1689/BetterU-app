@@ -33,6 +33,12 @@ import OtpVerificationScreen from '../screens/Auth/OtpVerificationScreen';
 import AdminJobManagerScreen from '../screens/Main/AdminJobManagerScreen';
 import JobBoardScreen from '../screens/Main/JobBoardScreen';
 import JobApplicationScreen from '../screens/Main/JobApplicationScreen';
+import NotificationScreen from '../screens/Main/NotificationScreen';
+import BookedSessionsScreen from '../screens/Main/BookedSessionsScreen';
+import AdminSessionListScreen from '../screens/Main/AdminSessionListScreen';
+// --------------- mood analysis -------------
+import MoodTrackerScreen from '../screens/Main/MoodTrackerScreen';
+import AnalyticsScreen from '../screens/Main/AnalyticsScreen';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -67,6 +73,8 @@ const AppNavigator = () => {
       
       {/* --- FIX: Corrected this to match the file we created --- */}
       <Stack.Screen name="ExpertPanel" component={ExpertPanelScreen} />
+      {/* --- all booked session Screens --- */}
+      <Stack.Screen name="AdminSessionList" component={AdminSessionListScreen} />
 
       <Stack.Screen name="UserList" component={UserListScreen} />
 
@@ -79,6 +87,14 @@ const AppNavigator = () => {
       {/* ---Job Board Screen */}
       <Stack.Screen name="JobBoard" component={JobBoardScreen} />
       <Stack.Screen name="JobApplication" component={JobApplicationScreen} />
+      <Stack.Screen name="Notifications" component={NotificationScreen} />
+      <Stack.Screen 
+      name="BookedSessions" 
+      component={BookedSessionsScreen} 
+      options={{ headerShown: false }} 
+      />
+      <Stack.Screen name="MoodTracker" component={MoodTrackerScreen} />
+      <Stack.Screen name="Analytics" component={AnalyticsScreen} />
     </Stack.Navigator>
   );
 };

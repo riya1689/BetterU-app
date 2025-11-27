@@ -85,7 +85,18 @@ const ProfileScreen = () => {
         </ProfileMenuItem>
 
         <ProfileMenuItem icon="bookmark-outline" text="Bookmarks" onPress={handleLockedFeature} theme={theme} />
-        <ProfileMenuItem icon="analytics-outline" text="Your Analytics" onPress={handleLockedFeature} theme={theme} />
+
+        <ProfileMenuItem 
+            icon="calendar-outline" 
+            text="Your Booked Sessions" 
+            onPress={() => navigation.navigate('BookedSessions')} 
+            theme={theme} 
+        />
+        <ProfileMenuItem 
+          icon="analytics-outline" 
+          text="Your Analytics" 
+          onPress={() => navigation.navigate('Analytics')}
+          theme={theme} />
         
         {/* --- NEW: Conditional Admin Panel Link --- */}
         {user && role === 'admin' && (

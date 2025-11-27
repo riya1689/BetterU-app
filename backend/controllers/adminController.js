@@ -2,6 +2,7 @@ const User = require('../models/user');
 const Job = require('../models/Job');
 const DoctorApplication = require('../models/DoctorApplication');
 const ExpertProfile = require('../models/ExpertProfile');
+const Notification = require('../models/Notification');
 // @desc    Get all users with the 'user' role
 // @route   GET /api/admin/users
 // @access  Private/Admin
@@ -161,6 +162,15 @@ const approveDoctorApplication = async (req, res) => {
     application.status = 'approved';
     await application.save();
 
+    // --- H. SEND NOTIFICATION TO USER ---
+    await Notification.create({
+        recipient: user._id, // The Applicant
+        sender: req.user.id, // The Admin (who approved it)
+        type: 'application_approved',
+        message: "Application Approved. Please log in as a Doctor.",
+        relatedId: application._id
+    });
+
     res.json({ 
       message: "Doctor approved successfully! User role updated.", 
       user: { name: user.name, role: user.role } 
@@ -183,6 +193,16 @@ const rejectDoctorApplication = async (req, res) => {
 
     application.status = 'rejected';
     await application.save();
+
+    // --- SEND NOTIFICATION TO USER ---
+    await Notification.create({
+        recipient: application.applicantId, // The Applicant
+        sender: req.user.id, // The Admin
+        type: 'application_rejected',
+        message: "Your application was not successful at this time.",
+        relatedId: application._id
+    });
+    // ------------------------------------
 
     res.json({ message: "Application rejected." });
 
