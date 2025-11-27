@@ -27,7 +27,7 @@ const MOCK_PSYCHOLOGISTS = [
     sessions: 200,
     details: 'MBBS, FCPS (Psychiatry), PG Hospital',
     price: 2000,
-    image: 'https://placehold.co/100x100/d4a373/333?text=Dr.+F' 
+    image: require('../../assets/images/dr-md-imran-hossain.png')  
   },
   { 
     id: '3', 
@@ -37,7 +37,7 @@ const MOCK_PSYCHOLOGISTS = [
     sessions: 180,
     details: 'MBBS, MD (Psychiatry), National Institute of Mental Health',
     price: 3000,
-    image: 'https://placehold.co/100x100/a2d2ff/333?text=Dr.+S' 
+    image: require('../../assets/images/dr-poly-bhoumik.png')  
   },
 ];
 

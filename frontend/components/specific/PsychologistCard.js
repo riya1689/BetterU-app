@@ -13,14 +13,26 @@ const PsychologistCard = ({ psychologist }) => {
   const handlePress = () => {
     navigation.navigate('Appointment', { psychologist: psychologist });
   };
+  // --- LOGIC TO HANDLE BOTH URL AND LOCAL IMAGES ---
+  const imageSource = typeof psychologist.image === 'string' 
+    ? { uri: psychologist.image } // For URLs
+    : psychologist.image;         // For require('../../...')
+
 
   return (
     <View style={[themedStyles.container, { backgroundColor: theme.card }]}>
+      
       <Image 
+        source={imageSource} 
+        style={themedStyles.image} 
+        // Note: e.target.src is web-only code. Removed to prevent warnings.
+      />
+      
+      {/* <Image 
         source={{ uri: psychologist.image }} 
         style={themedStyles.image} 
         onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/100x100/E0E0E0/333?text=Doc" }}
-      />
+      /> */}
       <View style={themedStyles.infoContainer}>
         <Text style={[themedStyles.name, { color: theme.text }]}>{psychologist.name}</Text>
         <Text style={[themedStyles.specialization, { color: theme.secondaryText }]}>{psychologist.specialization}</Text>
@@ -75,6 +87,7 @@ const styles = (theme) => StyleSheet.create({
     height: 80,
     borderRadius: 10,
     marginRight: 15,
+    backgroundColor: '#cccccc'
   },
   infoContainer: {
     flex: 1,
