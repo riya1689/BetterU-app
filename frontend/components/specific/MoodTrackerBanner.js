@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../store/ThemeContext';
+// 1. IMPORT THE ICON LIBRARY
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -10,21 +12,27 @@ const MoodTrackerBanner = () => {
   const navigation = useNavigation();
   const themedStyles = styles(theme);
 
-  // Animation Value
   const translateX = useRef(new Animated.Value(0)).current;
 
-  // The list of emojis to scroll
-  const emojis = ['😊', '😐', '😔', '😡', '🤩'];
-  // Duplicate the list to create a seamless loop effect
-  const loopedEmojis = [...emojis, ...emojis, ...emojis]; 
+  // 2. DEFINE ICON NAMES
+  const moodIcons = [
+    'emoticon-excited-outline',
+    'emoticon-happy-outline',
+    'emoticon-neutral-outline',
+    'emoticon-sad-outline',
+    'emoticon-angry-outline'
+  ];
+
+  // Duplicate for seamless loop
+  const loopedIcons = [...moodIcons, ...moodIcons, ...moodIcons]; 
 
   useEffect(() => {
     const startAnimation = () => {
       translateX.setValue(0);
       Animated.loop(
         Animated.timing(translateX, {
-          toValue: -width, // Move left by the width of the screen
-          duration: 9000, // Speed (lower = faster)
+          toValue: -width, 
+          duration: 12000, // Slower for better visuals
           easing: Easing.linear,
           useNativeDriver: true,
         })
@@ -39,17 +47,10 @@ const MoodTrackerBanner = () => {
       style={[themedStyles.container, { backgroundColor: theme.card }]}
       onPress={() => navigation.navigate('MoodTracker')}
     >
-
-      {/**<View style={themedStyles.textContainer}>
-              <Text style={[themedStyles.title, { color: theme.text }]}>Talk to me</Text>
-              <Text style={[themedStyles.subtitle, { color: theme.secondaryText }]}>I'm your AI Assistant</Text> */}  
       <View style={themedStyles.headerRow}>
-        {/* Top Line: Smaller "Click me" */}
-        <Text style={[themedStyles.clickMeText, { color: theme.primary }]}>
+        <Text style={[themedStyles.clickMeText, { color: theme.secondaryText }]}>
             Click me
         </Text>
-        
-        {/* Bottom Line: Bold "Share your mood" */}
         <Text style={[themedStyles.shareText, { color: theme.text }]}>
             Share your mood
         </Text>
@@ -57,8 +58,17 @@ const MoodTrackerBanner = () => {
 
       <View style={themedStyles.overflowContainer}>
         <Animated.View style={[themedStyles.emojiRow, { transform: [{ translateX }] }]}>
-          {loopedEmojis.map((emoji, index) => (
-            <Text key={index} style={themedStyles.emoji}>{emoji}</Text>
+          {loopedIcons.map((iconName, index) => (
+            /* --- CRITICAL FIX HERE --- */
+            /* We use MaterialCommunityIcons, NOT Text */
+            <MaterialCommunityIcons 
+                key={index} 
+                name={iconName} 
+                size={34} 
+                color={theme.primary} 
+                style={themedStyles.iconStyle}
+            />
+            /* ------------------------- */
           ))}
         </Animated.View>
       </View>
@@ -81,31 +91,23 @@ const styles = (theme) => StyleSheet.create({
   },
   headerRow: {
     paddingHorizontal: 15,
-    marginBottom: 10,
+    marginBottom: 15, // Increased spacing slightly
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  // New Style for "Click me"
   clickMeText: {
     fontSize: 14,
-    marginBottom: 4, // Small gap between lines
+    marginBottom: 4,
     fontWeight: '500',
   },
-  // New Style for "Share your mood"
   shareText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   overflowContainer: {
     width: '100%',
-    overflow: 'hidden', // Ensures emojis don't spill out
-    height: 40, 
+    overflow: 'hidden', 
+    height: 50, // Increased height to fit icons comfortably
     justifyContent: 'center',
   },
   emojiRow: {
@@ -113,9 +115,8 @@ const styles = (theme) => StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 20,
   },
-  emoji: {
-    fontSize: 28,
-    marginRight: 25, // Space between emojis
+  iconStyle: {
+    marginRight: 40, // Increased space between icons so they don't look crowded
   },
 });
 
